@@ -7,10 +7,12 @@
  * * log incoming/outgoing messages
  * * all services for the app are listed in wsFactory
  *
+ *
  * @event
  * "wsConnectionOpen"
  * "noServerConnectionConnectAgaian"
  *
+ * @version 0.1.5
  *
  * Code based on:
  * * http://clintberry.com/2013/angular-js-websocket-service/ and

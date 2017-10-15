@@ -1,3 +1,9 @@
+/**
+ * @module http factory
+ * @desc backend middleware with methods get and post, error handling included
+ * @version 0.1.0
+ */
+
 app.factory('http', ['$http', 'config', '$rootScope', function($http, config, $rootScope) {
 
    var debugMode = false;

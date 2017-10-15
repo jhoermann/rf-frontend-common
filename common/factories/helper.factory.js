@@ -1,6 +1,19 @@
-/* helperFactory */
+/**
+ * @module helperFactory
+ * @desc common functions 
+ * @version 0.1.0
+ */
+
 
 app.factory('helperFactory', ['$state', '$rootScope', function($state, $rootScope) {
+
+   var Services = {
+      watch: _watch,
+      saveCheck: _saveCheck,
+      twoDecimals: _twoDecimals,
+      round: _round,
+      checkFileVersion: _checkFileVersion
+   };
 
    /**
     * @example var saveCheck = new helperFactory.saveCheck($scope, unsaved );
@@ -96,11 +109,5 @@ app.factory('helperFactory', ['$state', '$rootScope', function($state, $rootScop
    // _checkFileVersion("filename (ds)");
 
 
-   return {
-      watch: _watch,
-      saveCheck: _saveCheck,
-      twoDecimals: _twoDecimals,
-      round: _round,
-      checkFileVersion: _checkFileVersion
-   };
+   return Services;
 }]);

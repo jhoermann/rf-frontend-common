@@ -1,4 +1,5 @@
-/** loginFactory
+/**
+ * @module loginFactory
  * @desc
  * connect to rf-app-login: login / logout
  * store token, account data, settings, rights etc.
