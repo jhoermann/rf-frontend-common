@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Common frontend style, images, components using AngularJS",
   "author": "Rapidfacture GmbH",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "dependencies": {  }
 }
