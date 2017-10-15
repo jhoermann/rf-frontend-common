@@ -4,6 +4,5 @@
   "description": "Common frontend components for Rapidfacture apps: style, images, AngularJS files",
   "author": "Rapidfacture GmbH",
   "license": "MIT",
-  "private": true,
   "dependencies": {  }
 }
