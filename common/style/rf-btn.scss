@@ -1,0 +1,152 @@
+.rf-btn,
+.rf-btn.rf-btn-inverted:hover {
+  color: #fff;
+  border: none;
+  background: $orange;
+  padding: 5px;
+  border-color: #fff;
+  margin: 5px 0;
+  cursor: pointer;
+  user-select: none;
+  @include noselect;
+
+  &.rf-btn-border {
+    border-width: 1px;
+    border-style: solid;
+  }
+
+  &.rf-btn-green {
+    color: #fff;
+    background: $green_1;
+    border-color: #fff;
+  }
+
+  &.rf-btn-red {
+    color: #fff;
+    background: $red_1;
+    border-color: #fff;
+  }
+
+  &.rf-btn-disabled {
+    color: $gray_1;
+    background: $gray_3;
+    border-color: $gray_1;
+  }
+
+  &.rf-btn-transparent {
+    background: none;
+  }
+
+  &.rf-btn-icon {
+    text-align: left;
+
+    & > * {
+      margin: 3px;
+      float: right;
+    }
+
+    &:after {
+      @include clear;
+    }
+  }
+}
+
+.rf-btn.rf-btn-inverted,
+.rf-btn:hover {
+  @extend .rf-btn;
+  color: $orange;
+  background: #fff;
+  border-color: $orange;
+  margin: 5px 0;
+
+  &.rf-btn-green {
+    color: $green_1;
+    background: #fff;
+    border-color: $green_1;
+  }
+
+  &.rf-btn-red {
+    color: $red_1;
+    background: #fff;
+    border-color: $red_1;
+  }
+
+  &.rf-btn-disabled {
+    color: $gray_1;
+    background: $gray_3;
+    border-color: $gray_1;
+  }
+
+  &.rf-btn-transparent {
+    background: none;
+  }
+
+  &.rf-btn-background {
+    background: $darkwhite;
+  }
+}
+
+.rf-btn-vertical-list {
+  .rf-btn,
+  .rf-btn.rf-btn-inverted:hover {
+    border-bottom: 1px solid;
+    display: block;
+    margin: 0;
+  }
+
+  .rf-btn.rf-btn-inverted,
+  .rf-btn:hover {
+    border-bottom: 1px solid;
+    margin: 0;
+  }
+
+  .rf-btn.last {
+    border-bottom: 0;
+  }
+}
+
+.rf-btn-horizontal-list {
+  .rf-btn,
+  .rf-btn.rf-btn-inverted:hover {
+    float: left;
+    border-right: 1px solid;
+    margin: 0;
+  }
+
+  .rf-btn.rf-btn-inverted,
+  .rf-btn:hover {
+    border-right: 1px solid;
+    margin: 0;
+  }
+
+  .rf-btn.last {
+    border-right: 0;
+  }
+
+  &:after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+}
+
+.rf-btn-list-labeled {
+  margin: 5px 0;
+  border: 1px solid $orange;
+
+  label {
+    float: left;
+    margin: 0;
+    padding: 5px;
+  }
+
+  & > div {
+    float: right;
+  }
+
+  &:after {
+    clear: both;
+    display: block;
+    content: '';
+  }
+}

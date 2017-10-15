@@ -1,0 +1,20 @@
+<div ng-show="visible" ng-class="{active: fade }">
+
+  <div class="greyLayer" ng-click="rfModal.quit()"></div>
+
+  <div class="box rf-box" ng-class="rfModal.size">
+    <div class="header">
+      {{rfModal.headerText}}
+      <div class="actions">
+        <button class="rf-btn rf-btn-inverted rf-btn-transparent" ng-click="rfModal.quit()"><i class="fa fa-times-circle"></i></button>
+      </div>
+    </div>
+
+    <div class="container row">
+      <modal-body class="col-xs-12">
+        <!-- child directives are added here -->
+      </modal-body>
+    </div>
+  </div>
+
+</div>

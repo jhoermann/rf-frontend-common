@@ -1,0 +1,9 @@
+{
+  "name": "rf-frontend-common",
+  "version": "0.0.1",
+  "description": "Common frontend style, images, components using AngularJS",
+  "author": "Rapidfacture GmbH",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {  }
+}

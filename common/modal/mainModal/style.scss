@@ -1,0 +1,131 @@
+rf-modal {
+   /* .small .box{ } this is the default */
+   .box {
+      position: fixed;
+      z-index: 9300;
+      height: 70%;
+      top: 0;
+      display: block;
+      text-align: center;
+      margin: 0 auto;
+      @include transition(0.15s);
+      opacity: 0;
+      // small, default
+      width: 40%;
+      left: 35%;
+      // deactive default rf-box shadow
+      // => is done separate in header/container
+      // reason: rf box height is bigger, thant content
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+
+      &.medium {
+         width: 20%;
+         left: 40%;
+      }
+
+      &.middle {
+         width: 60%;
+         left: 20%;
+      }
+
+      &.big {
+         width: 90%;
+         left: 5%;
+         height: 85%;
+      }
+
+      &.maxheader {
+         width: 100%;
+         left: 0;
+         min-height: 100%;
+         modal-body{
+            bottom: 0;
+            position: fixed;
+            top: 34px;
+            left: 0;
+            padding: 0;
+         }
+      }
+
+      &.max {
+         width: 100%;
+         left: 0;
+         height: 100%;
+
+         .container {
+            top: 0;
+         }
+      }
+   }
+
+   .header {
+      @include box-shadow(0px, 0px, 5px, 1px, rgba(0,0,0,0.75));
+      overflow: auto;
+      text-align: left;
+
+      .actions {
+         float: right;
+
+         .rf-btn {
+            line-height: 21px;
+            font-size: 21px;
+         }
+      }
+   }
+
+   .container {
+      overflow-y: auto;
+      width: 100%;
+      margin: 0;
+      padding-bottom: 30px;
+      background: white;
+      position: absolute;
+      left: 0;
+      top: 34px;
+      right: 0;
+      max-height: 100%;
+      @include box-shadow(0px, 0px, 5px, 1px, rgba(0,0,0,0.75));
+      &.maxheader {
+         bottom: 0;
+      }
+
+   }
+
+   .greyLayer {
+      position: fixed;
+      z-index: 9100;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      background-color: grey;
+      opacity: 0;
+      @include transition(0.15s);
+   }
+
+   .active {
+      .box {
+         @include transition(0.15s);
+         opacity: 1;
+         top: 15%;
+
+         &.big {
+            top: 5%;
+         }
+
+         &.max {
+            top: 0;
+         }
+         &.maxheader {
+            top: 0;
+         }
+      }
+
+      .greyLayer {
+         @include transition(0.15s);
+         opacity: 0.8;
+      }
+   }
+}

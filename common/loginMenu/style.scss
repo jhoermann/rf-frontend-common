@@ -1,0 +1,96 @@
+rf-login-menu {
+   display: block;
+   position: relative;
+   .login-menu-top {
+      float: right;
+
+      float:  !important;
+      background: #fff;
+      height: 40px;
+      display: block;
+      color: $orange_1;
+      height: 40px;
+      line-height: 40px;
+   }
+
+   .fa.fa-power-off.switch-icon{
+      &:hover{
+         color: $orange;
+      }
+   }
+
+   .dropdown {
+      &:hover {
+        .dropdown-menu, .login-menu-menu {
+          display: block;
+          left: auto;
+          right: 0;
+          top: 95%;
+          margin-top: 2px;
+          &>li {
+            &:hover {
+             background: #fff;
+             &>a {
+                background: lightgrey;
+                &.user_data {
+                  background: #fff;
+                }
+             }
+            }
+          }
+        }
+      }
+   }
+
+   .login-menu-menu{
+      position: absolute;
+      right: 0px;
+      top: 34px;
+      border: 1px solid gray;
+      padding: 0;
+
+      display: none;
+      @include border-radius(0);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+      padding: 0 !important;
+      &>li {
+       background: #fff;
+       border-bottom: 1px solid #ccc;
+       .user_data {
+          color: grey;
+       }
+      }
+
+      li{
+         list-style: none;
+         font-size: 14px;
+         min-width: 200px;
+         background: white;
+         line-height: 35px;
+         position: relative;
+         border-bottom: 1px solid lightgray;
+         a{
+            color: black;
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding-left: 35px;
+         }
+         &:hover{
+            background: grey;
+         }
+         .fa{
+            line-height: 24px;
+            position: absolute;
+            font-size: 18px;
+            float: none;
+            left: 5px;
+            width: 24px;
+            text-align: center;
+            color: black;
+            padding: 6px 0;
+            margin: 0;
+         }
+      }
+   }
+}

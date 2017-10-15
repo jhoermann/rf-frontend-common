@@ -1,0 +1,69 @@
+//global colors //////////////////////////////////
+
+$gray_1: #b3b3b3;
+$gray_2: #ddd;
+$gray_3: #636363;
+
+$green_1: #61a161;
+$green_1_1: #dfd;
+$green_2: #0f0;
+
+$red: #ff0202;
+$red_1: #a00;
+$red_1_1: #fdd;
+$red_2: #f00;
+$darkred: #a53f3f;
+
+$blue_1: #00a;
+$blue_1_1: #ddf;
+$blue_2: #00f;
+$lightblue: #68baf2;
+$blue: #0b88de;
+
+$yellow: #f9ff00;
+$orange_1: #f47721;
+$orange_1_1: #f4c09c;
+$orange: #f47721;
+$darkyellow: #d08d31;
+
+
+// black - grey - white
+$midwhite: #fcfcfc;     // background color
+$darkwhite: #f0f0f0;    // background color
+$lightgrey: lightgray;  // border color
+$midgrey: grey;         // background color
+$grey:  #545454;        // background color
+$darkgrey: #282630;     // background color
+$activeGrey: #717171;   // background color
+
+// orange/yellow
+$orange: #f47721;
+$darkyellow: #d08d31;
+$yellow: #FFBD00;
+$darkred: #a53f3f;
+
+// blue
+$lightblue: #68baf2;
+$blue: #0b88de;
+$darkgreenblue: #0e5c65;
+
+// fields
+$invalid: red;
+$valid: #d7fa96;
+$untouched: #fff;
+
+//global resolution variables //////////////////////////////////
+
+// IPAD NORMAL SIZE
+$screen-sm-min: 1024px; //768px;
+$screen-xs-max: ($screen-sm-min - 1);
+
+$screen-md-min: 992px;
+$screen-sm-max: ($screen-md-min - 1);
+
+$screen-lg-min: 1200px;
+$screen-md-max: ($screen-lg-min - 1);
+
+//Iphone 6
+$screen-iphone-min: 375px;
+$screen-iphone-max: (screen-iphone-min - 1);

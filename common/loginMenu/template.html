@@ -1,0 +1,56 @@
+<!--
+MENU
+profile
+administration
+settings
+about
+support
+logout
+-->
+
+<li class="nav-item last dropdown" ng-class="{active: showMenu}">
+
+<a class="dropdown-toggle"  ng-click="showMenu = !showMenu">
+   <i class="fa fa-cog"></i>
+</a>
+
+
+<ul class="login-menu-menu" ng-click="showMenu = false">
+   <li>
+      <a href="{{profileUrl}}" target="_blank">
+         <i class="fa fa-user-o"></i> {{lang.profile}}
+      </a>
+   </li>
+   <li ng-show="isAdmin">
+      <a href="{{adminAreaUrl}}" target="_blank">
+         <i class="fa fa-cogs"></i> {{lang.administration}}
+      </a>
+   </li>
+   <li>
+      <a ui-sref="settings" ng-show="showSettings">
+         <i class="fa fa-cog"></i> {{lang.settings}}
+      </a>
+   </li>
+   <li modal-open="about">
+      <a>
+         <i class="fa fa-info"></i> {{lang.about}} {{app.name}} {{app.version}}
+      </a>
+   </li>
+   <!--li>
+      <a modal-open="support">
+         <i class="fa fa-question"></i> {{lang.support}}
+      </a>
+   </li-->
+   <li ng-click="logout()" ng-show="loggedIn">
+      <a>
+         <i class="fa fa-power-off"></i> {{lang.logout}}
+      </a>
+   </li>
+   <li ng-show="loggedIn">
+      <a class="user_data">
+        {{lang.loggedInAs}}
+        {{userName}}
+      </a>
+   </li>
+</ul>
+</li>

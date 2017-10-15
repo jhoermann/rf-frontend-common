@@ -1,0 +1,14 @@
+<h3>{{app.name}}, Version {{app.version}}</h3>
+
+<h4>License</h4>
+{{app.license}}
+
+<h4>Dependecys</h4>
+<div ng-repeat="(name, version) in app.packageJson.dependencies">
+   {{name}} {{version}}
+</div>
+
+<h4>Peer Dependecys</h4>
+<div ng-repeat="(name, version) in app.packageJson.peerDependencies">
+   {{name}} {{version}}
+</div>

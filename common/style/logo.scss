@@ -1,0 +1,27 @@
+.rf-logo{
+    background: url("../common/img/logo.svg") no-repeat;
+
+    width: 50px;
+    height: 40px;
+    background-position: -27px -12px;
+
+    &.long {
+        display: inline-block;
+        width: 185px;
+        height: 40px;
+        background-position: -147px -12px;
+    }
+    &.small {
+        display: inline-block;
+        width: 43px;
+        height: 40px;
+        background-position: -147px -12px;
+    }
+
+    &.grey {
+        width: 150px;
+        height: 80px;
+        background-position: -11px -82px;
+        margin: 0 auto;
+    }
+}
