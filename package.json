@@ -1,8 +1,72 @@
 {
-  "name": "rf-frontend-common",
-  "version": "0.0.1",
+  "_args": [
+    [
+      {
+        "raw": "rf-frontend-common@^0.0.1",
+        "scope": null,
+        "escapedName": "rf-frontend-common",
+        "name": "rf-frontend-common",
+        "rawSpec": "^0.0.1",
+        "spec": ">=0.0.1 <0.0.2",
+        "type": "range"
+      },
+      "/home/jochenh/Projekte/RAPIDFACTURE/login"
+    ]
+  ],
+  "_from": "rf-frontend-common@>=0.0.1 <0.0.2",
+  "_id": "rf-frontend-common@0.0.1",
+  "_inCache": true,
+  "_location": "/rf-frontend-common",
+  "_nodeVersion": "6.11.4",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/rf-frontend-common-0.0.1.tgz_1508067199281_0.4318617242388427"
+  },
+  "_npmUser": {
+    "name": "rapidfacture",
+    "email": "ff@rapidfacture.com"
+  },
+  "_npmVersion": "4.3.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "rf-frontend-common@^0.0.1",
+    "scope": null,
+    "escapedName": "rf-frontend-common",
+    "name": "rf-frontend-common",
+    "rawSpec": "^0.0.1",
+    "spec": ">=0.0.1 <0.0.2",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/rf-frontend-common/-/rf-frontend-common-0.0.1.tgz",
+  "_shasum": "cfec806c419f7a980ea1fd96f5a640f697348a6c",
+  "_shrinkwrap": null,
+  "_spec": "rf-frontend-common@^0.0.1",
+  "_where": "/home/jochenh/Projekte/RAPIDFACTURE/login",
+  "author": {
+    "name": "Rapidfacture GmbH"
+  },
+  "dependencies": {},
   "description": "Common frontend components for Rapidfacture apps: style, images, AngularJS files",
-  "author": "Rapidfacture GmbH",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "cfec806c419f7a980ea1fd96f5a640f697348a6c",
+    "tarball": "https://registry.npmjs.org/rf-frontend-common/-/rf-frontend-common-0.0.1.tgz"
+  },
+  "gitHead": "9dc29caa9f76e3c00de706f877a76d23a6e2abc5",
   "license": "MIT",
-  "dependencies": {  }
+  "maintainers": [
+    {
+      "name": "rapidfacture",
+      "email": "ff@rapidfacture.com"
+    }
+  ],
+  "name": "rf-frontend-common",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "scripts": {},
+  "version": "0.0.2"
 }

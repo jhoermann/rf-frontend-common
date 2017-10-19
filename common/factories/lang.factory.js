@@ -11,7 +11,7 @@
 
 
 
-app.factory('langFactory', ['$http', '$q', '$rootScope', function($http, $q, $rootScope) {
+app.factory('langFactory', ['$http', '$q', '$rootScope', 'config', function($http, $q, $rootScope, config) {
 
    var dictionary = {},
       defaultLanguage = "en",
@@ -182,12 +182,12 @@ app.factory('langFactory', ['$http', '$q', '$rootScope', function($http, $q, $ro
 
             // TODO: exted original json with additional languale jsons dynamic
 
-            // var dict;
-            // if (config.translations) {
-            //    dict = merge(response.data, config.translations[lang]);
-            // } else {
-            //    dict = response.data;
-            // }
+            var dict;
+            if (config.translations) {
+                dict = merge(response.data, config.translations[lang]);
+            } else {
+               dict = response.data;
+            }
 
             // store the data local in factory
             dictionary[lang] = dict;
