@@ -54,17 +54,48 @@ app.factory('helperFactory', ['$state', '$rootScope', function($state, $rootScop
       this.list = {};
 
       this.unbind = function(name) {
-         if (this.list[name]) this.list[name]();
+         this.stop(name);
+         delete this.list[name];
       };
+
       this.unbindAll = function() {
          for (var watchName in this.list) {
-            watcher = this.list[watchName];
-            if (watcher !== null) watcher();
+            this.unbind(watchName);
          }
       };
+
+      this.start = function(name) {
+         if (this.list[name] && this.list[name].process === false) {
+            this.list[name].process = scope.$watch(name, this.list[name].changeFunction, true)
+         }
+      };
+      
+      this.startAll = function() {
+         for (var watchName in this.list) {
+            this.start(watchName);
+         }
+      };
+      
+      this.stop = function(name) {
+         if (this.list[name] && this.list[name].process !== false) {
+            this.list[name].process();
+            this.list[name].process = false;
+         }
+      };
+      
+      this.stopAll = function() {
+         for (var watchName in this.list) {
+            this.stop(watchName);
+         }
+      };
+
       this.addWatcher = function(scopeObjectToWatch, changeFunction) {
          changeFunction = changeFunction || this.watchChange;
          this.list[scopeObjectToWatch] = scope.$watch(scopeObjectToWatch, changeFunction, true);
+         this.list[scopeObjectToWatch] = {
+            process: scope.$watch(scopeObjectToWatch, changeFunction, true),
+            changeFunction: changeFunction
+         };
       };
    }
 
