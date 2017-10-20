@@ -25,7 +25,7 @@ app.directive('rfLoginMenu', ['$rootScope', 'loginFactory', '$state', 'config',
 
                if (loginData.globalSettings) {
                   var urls = loginData.globalSettings.apps.login.urls;
-                  $scope.profileUrl = urls.main + urls.profile + "/" + loginFactory.getProfileId();
+                  $scope.profileUrl = urls.main + urls.profile + "/" + loginFactory.getUserId();
                   $scope.adminAreaUrl = urls.main + urls.adminArea;
                }
 

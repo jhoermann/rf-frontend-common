@@ -35,12 +35,12 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
 
          // account data
-         getAccountName: function() {
+         getUserName: function() {
             if(loginData.userAccount) return loginData.userAccount.name;
             return "";
          },
-         getProfileId: function() {
-            if(loginData.userAccount) return loginData.userAccount.profileId;
+         getUserId: function() {
+            if(loginData.userAccount) return loginData.userAccount._id;
             return "";
          },
 
@@ -108,7 +108,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             loginData = logData;
             console.log("loginFactory received settings:", loginData);
             $rootScope.$broadcast("setToken", loginData.token);
-            _loggedInChanged();
+            _loggedInChanged(loginData.token);
          }, function(err) {
             if(err == 'noDocumentFoundInDb') _logout();
             console.log(err);
@@ -152,9 +152,9 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             });
       }
 
-      function _loggedInChanged(){
+      function _loggedInChanged(token) {
          //console.log("loggedInChanged", loginData.token);
-         $rootScope.$broadcast("loggedInChanged");
+         $rootScope.$broadcast("loggedInChanged", token);
       }
 
 
