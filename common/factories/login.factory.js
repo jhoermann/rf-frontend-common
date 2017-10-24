@@ -36,12 +36,16 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          reset: _reset,
 
          // account data
-         getAccountName: function() {
-            if(loginData.userAccount) return loginData.userAccount.name;
-            return "";
+         getUserName: function() {
+            if(loginData.userAccount) {
+               return loginData.userAccount.name;
+            }
+            return ""; 
          },
-         getProfileId: function() {
-            if(loginData.userAccount) return loginData.userAccount.profileId;
+         getUserId: function() {
+            if(loginData.userAccount) {
+               return loginData.userAccount._id
+            };
             return "";
          },
 

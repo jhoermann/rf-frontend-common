@@ -20,7 +20,7 @@ app.directive('rfLoginMenu', ['$rootScope', 'loginFactory', '$state', 'config',
 
             loginFactory.initAndRefreshOnLogin(function(loginData, loggedIn) {
                $scope.loggedIn = loggedIn;
-               $scope.userName = loginFactory.getAccountName();
+               $scope.userName = loginFactory.getUserName();
                $scope.isAdmin = loginFactory.isLoginAdmin();
 
                if (loginData.globalSettings) {
