@@ -102,8 +102,11 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       function _getSettings(token) {
 
          post_to_login("get-login-data", {
-            token: token,
             app: config.app.name
+         }, {
+            headers: {
+               'x-access-token': token
+            }
          }, function(logData) {
             loginData = logData;
             console.log("loginFactory received settings:", loginData);
@@ -119,7 +122,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       function _setAppSettings(appSettings, callback) {
          post_to_login("settings/app", {
             appSettings: loginData.appSettings
-         }, function(settings) {
+         }, {}, function(settings) {
             if (callback) callback(settings);
          });
       }
@@ -127,7 +130,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       function _setUserSettings(userSettings, callback) {
          post_to_login("settings/app/user", {
             userSettings: loginData.userSettings
-         }, function(settings) {
+         }, {}, function(settings) {
             if (callback) callback(settings);
          });
       }
@@ -135,11 +138,11 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       /*------------- helper functions ---------------*/
 
-      function post_to_login(sub_url, data, successFunc, errFunc) {
+      function post_to_login(sub_url, data, options, successFunc, errFunc) {
          var url = config.loginMainUrl + "/" + sub_url;
          $http.post(url , {
                data: data
-            })
+            }, options)
             // {data: data} - always parse as json, prevent body-parser errors in node backend
             .success(function(response) {
                console.log("LoginFactory: successfull posted to /" + url);
