@@ -45,54 +45,54 @@ app.factory('helperFactory', ['$state', '$rootScope', function($state, $rootScop
     * @example var watch = new helperFactory.watcher($scope, onChangeFunction );
     */
    function _watch(scope, defaultChangeFunction) {
+      var self = this;
 
-      this.scope = scope;
-      this.watchChange = defaultChangeFunction || function(newVal, oldVal) {
+      self.scope = scope;
+      self.watchChange = defaultChangeFunction || function(newVal, oldVal) {
          if (newVal != oldVal) scope.unsaved = true; // tell user, he has to save
       };
 
-      this.list = {};
+      self.list = {};
 
-      this.unbind = function(name) {
-         this.stop(name);
-         delete this.list[name];
+      self.unbind = function(name) {
+         self.stop(name);
+         delete self.list[name];
       };
 
-      this.unbindAll = function() {
-         for (var watchName in this.list) {
-            this.unbind(watchName);
+      self.unbindAll = function() {
+         for (var watchName in self.list) {
+            self.unbind(watchName);
          }
       };
 
-      this.start = function(name) {
-         if (this.list[name] && this.list[name].process === false) {
-            this.list[name].process = scope.$watch(name, this.list[name].changeFunction, true)
+      self.start = function(name) {
+         if (self.list[name] && self.list[name].process === false) {
+            self.list[name].process = scope.$watch(name, self.list[name].changeFunction, true)
          }
       };
       
-      this.startAll = function() {
-         for (var watchName in this.list) {
-            this.start(watchName);
+      self.startAll = function() {
+         for (var watchName in self.list) {
+            self.start(watchName);
          }
       };
       
-      this.stop = function(name) {
-         if (this.list[name] && this.list[name].process !== false) {
-            this.list[name].process();
-            this.list[name].process = false;
+      self.stop = function(name) {
+         if (self.list[name] && self.list[name].process !== false) {
+            self.list[name].process();
+            self.list[name].process = false;
          }
       };
       
-      this.stopAll = function() {
-         for (var watchName in this.list) {
-            this.stop(watchName);
+      self.stopAll = function() {
+         for (var watchName in self.list) {
+            self.stop(watchName);
          }
       };
 
-      this.addWatcher = function(scopeObjectToWatch, changeFunction) {
-         changeFunction = changeFunction || this.watchChange;
-         this.list[scopeObjectToWatch] = scope.$watch(scopeObjectToWatch, changeFunction, true);
-         this.list[scopeObjectToWatch] = {
+      self.addWatcher = function(scopeObjectToWatch, changeFunction) {
+         changeFunction = changeFunction || self.watchChange;
+         self.list[scopeObjectToWatch] = {
             process: scope.$watch(scopeObjectToWatch, changeFunction, true),
             changeFunction: changeFunction
          };
