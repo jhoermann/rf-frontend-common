@@ -1,6 +1,6 @@
 .rf-logo{
-    background: url("../common/img/logo.svg") no-repeat;
-
+    background: url("../global/common/img/logo.svg") no-repeat;
+    display: block;
     width: 50px;
     height: 40px;
     background-position: -27px -12px;
@@ -11,6 +11,7 @@
         height: 40px;
         background-position: -147px -12px;
     }
+    
     &.small {
         display: inline-block;
         width: 43px;
