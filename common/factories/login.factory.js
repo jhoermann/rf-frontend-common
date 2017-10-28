@@ -8,10 +8,9 @@
  */
 
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window',
-   function($rootScope, config, $http, $state, $window) {
-
+   function ($rootScope, config, $http, $state, $window) {
       var loginData = {
-         /*---- from session db ----*/
+         /* ---- from session db ---- */
          // token
          // userAccount
          // groups
@@ -19,11 +18,11 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          // rights
          // isloginAdmin => only for loginMenu
 
-         /*---- from session settings dbs ----*/
+         /* ---- from session settings dbs ---- */
          // globalSettings
          // appSettings
          // userSettings
-      };
+      }
 
       var Services = {
 
@@ -36,154 +35,141 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          reset: _reset,
 
          // account data
-         getUserName: function() {
-            if(loginData.userAccount) {
-               return loginData.userAccount.name;
+         getUserName: function () {
+            if (loginData.userAccount) {
+               return loginData.userAccount.name
             }
-            return ""; 
+            return ''
          },
-         getUserId: function() {
-            if(loginData.userAccount) {
+         getUserId: function () {
+            if (loginData.userAccount) {
                return loginData.userAccount._id
             };
-            return "";
+            return ''
          },
 
          // rights
-         hasRight: function(section, access) {
-            if(loginData.rights && loginData.rights[section] && loginData.rights[section][access])
-            return loginData.rights[section][access];
+         hasRight: function (section, access) {
+            if (loginData.rights && loginData.rights[section] && loginData.rights[section][access]) { return loginData.rights[section][access] }
          },
-         isLoginAdmin:function() {
-            return loginData.isLoginAdmin || false;
+         isLoginAdmin: function () {
+            return loginData.isLoginAdmin || false
          },
-         hasGroup: function(group) {return loginData.groups.indexOf(group) !== -1;},
-         hasUserGroup: function(userGroup){return loginData.userGroups.indexOf(userGroup) !== -1;},
+         hasGroup: function (group) { return loginData.groups.indexOf(group) !== -1 },
+         hasUserGroup: function (userGroup) { return loginData.userGroups.indexOf(userGroup) !== -1 },
 
          // app config
-         getGlobalSettings: function() {return loginData.globalSettings;},
-         getAppSettings: function() {return loginData.appSettings;},
-         getUserSettings:function() {return loginData.userSettings;},
+         getGlobalSettings: function () { return loginData.globalSettings },
+         getAppSettings: function () { return loginData.appSettings },
+         getUserSettings: function () { return loginData.userSettings },
 
          // settings
          setAppSettings: _setAppSettings,
-         setUserSettings: _setUserSettings,
-      };
+         setUserSettings: _setUserSettings
+      }
 
-
-      function _login() {
-         function _getLoginAppUrl(page, redirect, param) {
-            var url = config.loginUrl + "/" + page;
+      function _login () {
+         function _getLoginAppUrl (page, redirect, param) {
+            var url = config.loginUrl + '/' + page
             if (redirect) {
-               url += "?redirect_uri=" + encodeURIComponent($window.location.href) +
-                  ((param) ? ("&" + param) : "");
+               url += '?redirect_uri=' + encodeURIComponent($window.location.href) +
+                  ((param) ? ('&' + param) : '')
             }
-            return url;
+            return url
          }
 
-
-         $window.location.href = _getLoginAppUrl("login", "redirect");
+         $window.location.href = _getLoginAppUrl('login', 'redirect')
       }
 
-      function _logout() {
-         _reset();
-         var url = config.loginMainUrl + "/#/logout";
-         $window.location.href = url;
+      function _logout () {
+         _reset()
+         var url = config.loginMainUrl + '/#/logout'
+         $window.location.href = url
       }
 
-
-      function _initAndRefreshOnLogin(callback) {
-         callback(loginData, _getLoggedIn());
-         $rootScope.$on('loggedInChanged', function() {
-            callback(loginData, _getLoggedIn());
-         });
+      function _initAndRefreshOnLogin (callback) {
+         callback(loginData, _getLoggedIn())
+         $rootScope.$on('loggedInChanged', function () {
+            callback(loginData, _getLoggedIn())
+         })
       }
 
-      function _setToken(token) {
-         _getSettings(token);
+      function _setToken (token) {
+         _getSettings(token)
       }
 
-      function _reset() {
+      function _reset () {
          // delete token, settings, ...
-         loginData = {};
-         _loggedInChanged();
+         loginData = {}
+         _loggedInChanged()
       }
 
-
-      function _getLoggedIn() {
-         return loginData.token ? true : false;
+      function _getLoggedIn () {
+         return !!loginData.token
       }
 
+      /* -------------  login data  -------------- */
 
-      /*-------------  login data  --------------*/
-
-      function _getSettings(token) {
-
-         post_to_login("get-login-data", {
+      function _getSettings (token) {
+         postToLogin('get-login-data', {
             app: config.app.name
          }, {
             headers: {
                'x-access-token': token
             }
-         }, function(logData) {
-            loginData = logData;
-            console.log("loginFactory received settings:", loginData);
-            _loggedInChanged();
-         }, function(err) {
-            if(err == 'noDocumentFoundInDb'){
-               _reset();
+         }, function (logData) {
+            loginData = logData
+            console.log('loginFactory received settings:', loginData)
+            _loggedInChanged()
+         }, function (err) {
+            if (err === 'noDocumentFoundInDb') {
+               _reset()
             }
-         });
+         })
       }
 
-      function _setAppSettings(appSettings, callback) {
-         post_to_login("settings/app", {
+      function _setAppSettings (appSettings, callback) {
+         postToLogin('settings/app', {
             appSettings: loginData.appSettings
-         }, {}, function(settings) {
-            if (callback) callback(settings);
-         });
+         }, {}, function (settings) {
+            if (callback) callback(settings)
+         })
       }
 
-      function _setUserSettings(userSettings, callback) {
-         post_to_login("settings/app/user", {
+      function _setUserSettings (userSettings, callback) {
+         postToLogin('settings/app/user', {
             userSettings: loginData.userSettings
-         }, {}, function(settings) {
-            if (callback) callback(settings);
-         });
+         }, {}, function (settings) {
+            if (callback) callback(settings)
+         })
       }
 
+      /* ------------- helper functions --------------- */
 
-      /*------------- helper functions ---------------*/
-
-
-      function post_to_login(sub_url, data, options, successFunc, errFunc) {
-         var url = config.loginMainUrl + "/" + sub_url;
-         $http.post(url , {
-               data: data
-            }, options)
+      function postToLogin (subUrl, data, options, successFunc, errFunc) {
+         var url = config.loginMainUrl + '/' + subUrl
+         $http.post(url, {
+            data: data
+         }, options)
             // {data: data} - always parse as json, prevent body-parser errors in node backend
-            .success(function(response) {
-               console.log("successfull posted to /" + url);
-               if (successFunc) successFunc(response);
+            .success(function (response) {
+               console.log('successfull posted to /' + url)
+               if (successFunc) successFunc(response)
             })
-            .error(function(err, status, headers, config) {
-               console.log(err, ", Status " + status);
-               if (errFunc) errFunc(err, status, headers, config);
-               if(err == "AuthenticateFailed"){
-                  _logout();
+            .error(function (err, status, headers, config) {
+               console.log(err, ', Status ' + status)
+               if (errFunc) errFunc(err, status, headers, config)
+               if (err === 'AuthenticateFailed') {
+                  _logout()
                }
-            });
+            })
       }
 
-      function _loggedInChanged(){
-         //console.log("loggedInChanged", loginData.token);
-         $rootScope.$broadcast("loggedInChanged", loginData.token);
+      function _loggedInChanged () {
+         // console.log("loggedInChanged", loginData.token);
+         $rootScope.$broadcast('loggedInChanged', loginData.token)
       }
 
-
-
-
-      return Services;
-
+      return Services
    }
-]);
+])

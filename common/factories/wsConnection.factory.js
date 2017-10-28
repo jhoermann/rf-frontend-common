@@ -19,218 +19,195 @@
  * * http://stackoverflow.com/questions/22431751/websocket-how-to-automatically-reconnect-after-it-dies
  */
 
+app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
+   function ($q, $rootScope, $window) {
+      // Keep pending requests here until they get responses
+      var callbacks = {}
+      // unique callback ID to map requests to responses
+      var currentCallbackId = 0
+      // websocket object with address to the websocket
+      var ws
 
- app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
-     function($q, $rootScope, $window) {
+      var serverURL
 
-        // Keep pending requests here until they get responses
-        var callbacks = {};
-        // unique callback ID to map requests to responses
-        var currentCallbackId = 0;
-        // websocket object with address to the websocket
-        var ws;
+      var wsConnectionOpen = false
 
-        var serverURL;
+      // connection timeout check
+      var connectionTimeout = 5, // seconds
+         firstFailure = true // reject packges after second error => prevent to many error messages
 
-        var wsConnectionOpen = false;
+      // stay alive signal
+      var keepConIntervalTime = 20, // seconds
+         keepConInterval
 
-        // connection timeout check
-        var connectionTimeout = 5, // seconds
-            firstFailure = true; // reject packges after second error => prevent to many error messages
+      /* --------------------------------------- Establish Websocket Connection ---------------------------------------- */
 
-        // stay alive signal
-        var keepConIntervalTime = 20, // seconds
-            keepConInterval;
+      function initConnection (url) { // init websocket connection
+         if (!url) {
+            alert('wsConnectionFactory: No Server URL specified! Cannot Connect Websocket. Please reload page.')
+            console.log('wsConnectionFactory: No Server URL specified! Cannot Connect Websocket')
+            return
+         }
 
+         serverURL = url.replace('http', 'ws')
 
+         ws = new WebSocket(serverURL)
 
-        /*--------------------------------------- Establish Websocket Connection ----------------------------------------*/
+         ws.onopen = function () {
+            // do not close websocket on first failure
+            firstFailure = true // needed for reject function
 
-
-        function initConnection(url) { // init websocket connection
-
-            if(!url){
-                alert("wsConnectionFactory: No Server URL specified! Cannot Connect Websocket. Please reload page.");
-                console.log("wsConnectionFactory: No Server URL specified! Cannot Connect Websocket");
-                return;
+            // clear "keep connection alive interval" function when reconnecting => only running once
+            if (typeof keepConInterval !== 'undefined') {
+               clearInterval(keepConInterval)
             }
 
-            serverURL = url.replace("http", "ws");
+            // hold websocket connection open
+            keepConInterval = setInterval(function () {
+               keepCon()
+            }, keepConIntervalTime * 1000)
 
-            ws = new WebSocket(serverURL);
+            wsConnectionOpen = true
+            console.log('Websocket connected to: ', serverURL)
+            $rootScope.$broadcast('wsConnectionOpen')
+         }
 
-            ws.onopen = function() {
+         ws.onmessage = function (message) {
+            try {
+               var messageJson = JSON.parse(message.data)
+               console.log('Websocket receive message: ', messageJson)
+               // For development: Delete invalid token and reset error
+               if (messageJson.data && messageJson.data.err === 'invalid auth token') {
+                  delete $window.localStorage.token
+                  messageJson.err = null
+               }
 
-                // do not close websocket on first failure
-                firstFailure = true; // needed for reject function
+               // resolve existing object  with callbackId in callback object
+               if (callbacks.hasOwnProperty(messageJson.callbackId)) {
+                  $rootScope.$apply(callbacks[messageJson.callbackId].cb.resolve(messageJson.data))
+                  delete callbacks[messageJson.callbackId]
+               }
+            } catch (error) {
+               console.log('Error in parsing Websocket message:' + error)
+               console.log('Original Websocket message: ', message)
+            }
+         }
 
-                // clear "keep connection alive interval" function when reconnecting => only running once
-                if (typeof keepConInterval !== "undefined") {
-                    clearInterval(keepConInterval);
-                }
+         ws.onclose = function (e) {
+            var reconnectTimeout = 2
+            ws = null
+            if (typeof keepConInterval !== 'undefined') {
+               clearInterval(keepConInterval) // clear "keep connection alive interval" function when not connected
+            }
+            setTimeout(function () {
+               console.log('Websocket connection closed, try reconnecting to ', serverURL)
+               initConnection(serverURL)
+            }, reconnectTimeout * 1000)
+         }
 
-                // hold websocket connection open
-                keepConInterval = setInterval(function() {
-                    keepCon();
-                }, keepConIntervalTime * 1000);
+         ws.onerror = function (err) {
+            if (typeof keepConInterval !== 'undefined') {
+               clearInterval(keepConInterval) // clear "keep connection alive interval" function when not connected
+            }
+            console.log('Websocket error: ', err.message)
+            ws.close()
+         }
+      }
 
-                wsConnectionOpen = true;
-                console.log("Websocket connected to: ", serverURL);
-                $rootScope.$broadcast("wsConnectionOpen");
-            };
+      /* ======================================= Handle Requests ======================================== */
 
+      var timeoutArray = [] //
 
-            ws.onmessage = function(message) {
-                try {
-                    var messageJson = JSON.parse(message.data);
-                    console.log("Websocket receive message: ",  messageJson);
-                    // For development: Delete invalid token and reset error
-                    if (messageJson.data && messageJson.data.err == 'invalid auth token') {
-                        delete $window.localStorage.token;
-                        messageJson.err = null;
-                    }
+      function getPromiseFor (request) {
+         var defer = $q.defer(), callbackId
 
-                    // resolve existing object  with callbackId in callback object
-                    if (callbacks.hasOwnProperty(messageJson.callbackId)) {
-                        $rootScope.$apply(callbacks[messageJson.callbackId].cb.resolve(messageJson.data));
-                        delete callbacks[messageJson.callbackId];
-                    }
-                } catch (error) {
-                    console.log("Error in parsing Websocket message:" + error);
-                    console.log("Original Websocket message: ",  message);
-                }
-            };
+         // reject package, when timeout reached
+         timeoutArray.push(setTimeout(function () {
+            reject(defer)
+         }, connectionTimeout * 1000))
 
+         // disable closing the connection, when answer arrives before
+         defer.promise.then(function () {
+            for (var i = 0; i < timeoutArray.length; i++) {
+               clearTimeout(timeoutArray[i])
+            }
+         })
 
-            ws.onclose = function(e) {
-                var reconnectTimeout = 2;
-                ws = null;
-                if (typeof keepConInterval !== "undefined") {
-                    clearInterval(keepConInterval); // clear "keep connection alive interval" function when not connected
-                }
-                setTimeout(function() {
-                    console.log('Websocket connection closed, try reconnecting to ', serverURL);
-                    initConnection(serverURL);
-                }, reconnectTimeout * 1000);
-            };
+         // connection established?  websockt states: CONNECTING  OPEN  CLOSING  CLOSED
+         if (ws && ws.readyState === ws.OPEN) {
+            // create new callback ID for a request
+            currentCallbackId++
+            if (currentCallbackId > 10000) {
+               currentCallbackId = 0
+            }
+            callbackId = currentCallbackId
 
-
-            ws.onerror = function(err) {
-                if (typeof keepConInterval !== "undefined") {
-                    clearInterval(keepConInterval); // clear "keep connection alive interval" function when not connected
-                }
-                console.log('Websocket error: ',  err.message);
-                ws.close();
-            };
-        }
-
-
-
-        /*======================================= Handle Requests ========================================*/
-
-        var timeoutArray = []; //
-
-        function getPromiseFor(request) {
-
-            var defer = $q.defer(), callbackId;
-
-            // reject package, when timeout reached
-            timeoutArray.push(setTimeout(function() {
-                reject(defer);
-            }, connectionTimeout * 1000));
-
-            // disable closing the connection, when answer arrives before
-            defer.promise.then(function() {
-                for (var i = 0; i < timeoutArray.length; i++) {
-                    clearTimeout(timeoutArray[i]);
-                }
-            });
-
-            // connection established?  websockt states: CONNECTING  OPEN  CLOSING  CLOSED
-            if (ws && ws.readyState === ws.OPEN) {
-
-                // create new callback ID for a request
-                currentCallbackId ++;
-                if (currentCallbackId > 10000) {
-                    currentCallbackId = 0;
-                }
-                callbackId = currentCallbackId;
-
-
-                callbacks[callbackId] = {
-                    time: new Date(),
-                    cb: defer
-                };
-
+            callbacks[callbackId] = {
+               time: new Date(),
+               cb: defer
+            }
 
             //    $rootScope.$broadcast("newMessage", messageJson);
 
-                request.callbackId = callbackId;
+            request.callbackId = callbackId
 
-                // Send auth info if available
-                if ($window.localStorage && typeof $window.localStorage.token !== "undefined") {
-                    request.token = $window.localStorage.token;
-                }
-                console.log("Websocket send message: ",  request);
-                ws.send(JSON.stringify(request));
-
-            } else {
-                reject(defer);
+            // Send auth info if available
+            if ($window.localStorage && typeof $window.localStorage.token !== 'undefined') {
+               request.token = $window.localStorage.token
             }
+            console.log('Websocket send message: ', request)
+            ws.send(JSON.stringify(request))
+         } else {
+            reject(defer)
+         }
 
-            return defer.promise;
-        }
+         return defer.promise
+      }
 
-
-        function reject(defer) { // called on connection errors
-            defer.reject();
-            if (ws) {
-                if (ws.readyState !== ws.OPEN) { // socket no longer open => reconnect
-                    closeWebsocket();
-                } else { // state is still open, but connectionTimeout passed; connection might be lost
-
-                    if (firstFailure) { // try one more send
-                        firstFailure = false;
-                        keepCon();
-                    } else {
-                        closeWebsocket();
-                    }
-                }
+      function reject (defer) { // called on connection errors
+         defer.reject()
+         if (ws) {
+            if (ws.readyState !== ws.OPEN) { // socket no longer open => reconnect
+               closeWebsocket()
+            } else { // state is still open, but connectionTimeout passed; connection might be lost
+               if (firstFailure) { // try one more send
+                  firstFailure = false
+                  keepCon()
+               } else {
+                  closeWebsocket()
+               }
             }
-            console.log("Websocket package rejected: " + connectionTimeout + " seconds no reply from server");
-        }
+         }
+         console.log('Websocket package rejected: ' + connectionTimeout + ' seconds no reply from server')
+      }
+
+      function closeWebsocket () {
+         wsConnectionOpen = false
+         ws.close() // intitiate a reconnect
+         console.log('No Websocket connection, try to reconnect.')
+         $rootScope.$broadcast('noServerConnectionConnectAgaian')
+      }
 
 
-        function closeWebsocket() {
-            wsConnectionOpen = false;
-            ws.close(); // intitiate a reconnect
-            console.log("No Websocket connection, try to reconnect.");
-            $rootScope.$broadcast("noServerConnectionConnectAgaian");
-        }
-
-
-
-
-        // Send request with drawing Id and get drawing
-        keepCon = function() {
-            return getPromiseFor({
-                func: 'keepCon',
-                keepCon: {
-                    keepCon: true
-                }
-            });
-        };
-
-        return {
-
-            initConnection: initConnection,
-
-            getPromiseFor : getPromiseFor,
-
-            getWsConnectionOpen : function(){
-                return wsConnectionOpen;
+      function keepCon () { // keep alive signal
+         return getPromiseFor({
+            func: 'keepCon',
+            keepCon: {
+               keepCon: true
             }
+         })
+      }
 
-        };
-    }
-]);
+      return {
+
+         initConnection: initConnection,
+
+         getPromiseFor: getPromiseFor,
+
+         getWsConnectionOpen: function () {
+            return wsConnectionOpen
+         }
+
+      }
+   }
+])

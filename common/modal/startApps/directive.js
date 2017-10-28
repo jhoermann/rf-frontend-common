@@ -8,25 +8,25 @@
  *
  */
 
-app.directive('rfModalStartApps', ['loginFactory', function(loginFactory) {
+app.directive('rfModalStartApps', ['loginFactory', function (loginFactory) {
    return {
       restrict: 'E',
       scope: {
-         modal: "=",
-         lang: "="
+         modal: '=',
+         lang: '='
       },
       templateUrl: 'global/common/modal/startApps/template.html',
-      link: function($scope, element) {
-         $scope.modal.size = "big";
+      link: function ($scope, element) {
+         $scope.modal.size = 'big'
 
-         var globalSettings = loginFactory.getGlobalSettings();
-         if(globalSettings){
-            var urls = globalSettings.apps.login.urls;
-            var url = urls.main + urls.startApps;
-            document.getElementById("start-app-iframe").src = url;
-         }else {
-            $scope.$emit("note_error", "invalid global settings - cannot conntect to login app");
+         var globalSettings = loginFactory.getGlobalSettings()
+         if (globalSettings) {
+            var urls = globalSettings.apps.login.urls
+            var url = urls.main + urls.startApps
+            document.getElementById('start-app-iframe').src = url
+         } else {
+            $scope.$emit('note_error', 'invalid global settings - cannot conntect to login app')
          }
       }
-   };
-}]);
+   }
+}])
