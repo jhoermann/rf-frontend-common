@@ -21,7 +21,7 @@
     "window": false,
     "app": false,
     "WebSocket": false,
-    "alert": false
+    "angular": false
   },
 
   "rules": {

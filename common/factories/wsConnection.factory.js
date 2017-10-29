@@ -44,7 +44,6 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
 
       function initConnection (url) { // init websocket connection
          if (!url) {
-            alert('wsConnectionFactory: No Server URL specified! Cannot Connect Websocket. Please reload page.')
             console.log('wsConnectionFactory: No Server URL specified! Cannot Connect Websocket')
             return
          }

@@ -7,9 +7,6 @@ JS Requires Angular (Factories, Directives)
 > npm install rf-frontend-common
 * exclude the folder from git in your `.gitignore`:
 
-```
-common/
-```
 * copy the `common` folder from this package into your project using grunt
 * include the files using grunt
 
@@ -20,6 +17,4 @@ common/
 
 
 ## ToDo
-* cleanup
-* include in projects
 * share dialog
