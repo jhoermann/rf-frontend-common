@@ -39,7 +39,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          // account data
          getUserName: function () {
             if (loginData.userAccount) {
-               return loginData.userAccount.name
+               return loginData.userAccount.name.name
             }
             return ''
          },
@@ -107,7 +107,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       }
 
       function _getLoggedIn () {
-         return !!loginData.token
+         return loginData
       }
 
       /* -------------  login data  -------------- */
@@ -169,7 +169,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _loggedInChanged () {
          // console.log("loggedInChanged", loginData.token);
-         $rootScope.$broadcast('loggedInChanged', loginData.token)
+         $rootScope.$broadcast('loggedInChanged', loginData)
       }
 
       return Services
