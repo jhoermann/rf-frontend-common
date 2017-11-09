@@ -34,12 +34,11 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          getSettings: _getSettings,
 
          setToken: _setToken,
-         reset: _reset,
 
          // account data
          getUserName: function () {
             if (loginData.userAccount) {
-               return loginData.userAccount.name
+               return loginData.userAccount.email
             }
             return ''
          },
@@ -63,11 +62,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          // app config
          getGlobalSettings: function () { return loginData.globalSettings },
          getAppSettings: function () { return loginData.appSettings },
-         getUserSettings: function () { return loginData.userSettings },
-
-         // settings
-         setAppSettings: _setAppSettings,
-         setUserSettings: _setUserSettings
+         getUserSettings: function () { return loginData.userSettings }
       }
 
       function _login () {
@@ -80,18 +75,24 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             return url
          }
 
-         $window.location.href = _getLoginAppUrl('login', 'redirect')
+         $window.location.href = _getLoginAppUrl('login', true)
       }
 
       function _logout () {
-         _reset()
-         var url = config.loginMainUrl + '/#/logout'
-         $window.location.href = url
+         postToLogin('logout', {
+            appSettings: loginData.appSettings
+         }, {
+            headers: { 'x-access-token': loginData.token }
+         }, function (res) {
+            _reset()
+            var url = config.loginMainUrl + '/#/login'
+            $window.location.href = url
+         })
       }
 
       function _initAndRefreshOnLogin (callback) {
          callback(loginData, _getLoggedIn())
-         $rootScope.$on('loggedInChanged', function () {
+         $rootScope.$on('loggedIn', function () {
             callback(loginData, _getLoggedIn())
          })
       }
@@ -103,7 +104,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       function _reset () {
          // delete token, settings, ...
          loginData = {}
-         _loggedInChanged()
+         _loggedOut()
       }
 
       function _getLoggedIn () {
@@ -116,13 +117,11 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          postToLogin('get-login-data', {
             app: config.app.name
          }, {
-            headers: {
-               'x-access-token': token
-            }
+            headers: { 'x-access-token': token }
          }, function (logData) {
             loginData = logData
             console.log('loginFactory received settings:', loginData)
-            _loggedInChanged()
+            _loggedIn()
          }, function (err) {
             if (err === 'noDocumentFoundInDb') {
                _reset()
@@ -130,26 +129,11 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          })
       }
 
-      function _setAppSettings (appSettings, callback) {
-         postToLogin('settings/app', {
-            appSettings: loginData.appSettings
-         }, {}, function (settings) {
-            if (callback) callback(settings)
-         })
-      }
-
-      function _setUserSettings (userSettings, callback) {
-         postToLogin('settings/app/user', {
-            userSettings: loginData.userSettings
-         }, {}, function (settings) {
-            if (callback) callback(settings)
-         })
-      }
-
       /* ------------- helper functions --------------- */
 
       function postToLogin (subUrl, data, options, successFunc, errFunc) {
          var url = config.loginMainUrl + '/' + subUrl
+
          $http.post(url, {
             data: data
          }, options)
@@ -167,9 +151,12 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             })
       }
 
-      function _loggedInChanged () {
-         // console.log("loggedInChanged", loginData.token);
-         $rootScope.$broadcast('loggedInChanged', loginData.token)
+      function _loggedIn () {
+         $rootScope.$broadcast('loggedIn', loginData.token)
+      }
+
+      function _loggedOut () {
+         $rootScope.$broadcast('loggedOut')
       }
 
       return Services
