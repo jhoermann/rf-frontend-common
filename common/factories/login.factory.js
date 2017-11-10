@@ -62,7 +62,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          // app config
          getGlobalSettings: function () { return loginData.globalSettings },
          getAppSettings: function () { return loginData.appSettings },
-         getUserSettings: function () { return loginData.userSettings }
+         getUserSettings: function () { return loginData.userSettings },
+
+         setAppSettings: _setAppSettings,
+         setUserSettings: _setUserSettings
       }
 
       function _login () {
@@ -79,11 +82,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       }
 
       function _logout () {
+         // Send logout request to remove the session on the server
          postToLogin('logout', {
             appSettings: loginData.appSettings
-         }, {
-            headers: { 'x-access-token': loginData.token }
-         }, function (res) {
+         }, {}, function (res) {
             _reset()
             var url = config.loginMainUrl + '/#/login'
             $window.location.href = url
@@ -116,9 +118,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       function _getSettings (token) {
          postToLogin('get-login-data', {
             app: config.app.name
-         }, {
-            headers: { 'x-access-token': token }
-         }, function (logData) {
+         }, {}, function (logData) {
             loginData = logData
             console.log('loginFactory received settings:', loginData)
             _loggedIn()
@@ -129,10 +129,31 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          })
       }
 
+      function _setAppSettings (appSettings, callback) {
+         postToLogin('settings/app', {
+            appSettings: loginData.appSettings
+         }, {}, function (settings) {
+            if (callback) callback(settings)
+         })
+      }
+
+      function _setUserSettings (userSettings, callback) {
+         postToLogin('settings/app/user', {
+            userSettings: loginData.userSettings
+         }, {}, function (settings) {
+            if (callback) callback(settings)
+         })
+      }
+
       /* ------------- helper functions --------------- */
 
       function postToLogin (subUrl, data, options, successFunc, errFunc) {
          var url = config.loginMainUrl + '/' + subUrl
+         options = options || {}
+
+         if (loginData.token) { // If a token is available set it on every request
+            options['x-access-token'] = loginData.token
+         }
 
          $http.post(url, {
             data: data
