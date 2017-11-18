@@ -39,7 +39,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          // account data
          getUserName: function () {
             if (loginData.userAccount) {
-               return loginData.userAccount.name.name
+               return loginData.userAccount.name
             }
             return ''
          },
@@ -72,6 +72,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _login () {
          function _getLoginAppUrl (page, redirect, param) {
+            console.log('Called the _getLoginAppUrl for some redirect, redirects value, ', redirect)
             var url = config.loginUrl + '/' + page
             if (redirect) {
                url += '?redirect_uri=' + encodeURIComponent($window.location.href) +
@@ -79,7 +80,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             }
             return url
          }
-
          $window.location.href = _getLoginAppUrl('login', 'redirect')
       }
 
@@ -101,18 +101,20 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       }
 
       function _reset () {
+         console.log('Reset called explicitly')
          // delete token, settings, ...
          loginData = {}
          _loggedInChanged()
       }
 
       function _getLoggedIn () {
-         return loginData
+         return !!loginData.token
       }
 
       /* -------------  login data  -------------- */
 
       function _getSettings (token) {
+         console.log('In the settings')
          postToLogin('get-login-data', {
             app: config.app.name
          }, {
@@ -169,7 +171,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _loggedInChanged () {
          // console.log("loggedInChanged", loginData.token);
-         $rootScope.$broadcast('loggedInChanged', loginData)
+         $rootScope.$broadcast('loggedInChanged', loginData.token)
       }
 
       return Services

@@ -27,10 +27,12 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
       } else {
          delete $http.defaults.headers.common['x-access-token']
       }
+    console.log('The token is set')
    }
 
    // acl: set headers, when token present after login
    $rootScope.$on('loggedInChanged', function (event, token) {
+      console.log('Set header token is called')
       _setHeaderToken(token)
    })
 
