@@ -188,9 +188,9 @@ app.factory('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
 
    function refreshLanguage () {
       // set to default language
-      if (config.defaultLanguage) {
-         if (config.defaultLanguage !== Services.currentLang) {
-            setLanguage(config.defaultLanguage)
+      if (defaultLanguage) {
+         if (defaultLanguage !== Services.currentLang) {
+            setLanguage(Services.defaultLanguage)
          }
       } else { // no language found? try to guess from browser settings
          if (firstLanguageCheck) { // never set before?
