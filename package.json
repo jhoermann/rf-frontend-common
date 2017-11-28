@@ -1,7 +1,7 @@
 {
   "name": "rf-frontend-common",
   "description": "Common frontend components for Rapidfacture apps: style, images, AngularJS files",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "license": "MIT",
   "author": {
     "name": "Rapidfacture GmbH"
@@ -21,5 +21,9 @@
   "devDependencies":{
      "grunt":"1.0.1",
      "grunt-eslint":"20.1.0"
+  },
+  "scripts": {
+     "prepublish": "sh test/isRepoClean && npm test",
+     "test": "grunt"
   }
 }
