@@ -4,7 +4,7 @@
  * connect to rf-app-login: login / logout
  * store token, account data, settings, rights etc.
  *
- * @version 0.0.5
+ * @version 0.0.6
  */
 
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window',
@@ -26,40 +26,28 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       var Services = {
 
+         // login
          login: _login,
          logout: _logout,
          getLoggedIn: _getLoggedIn,
-         initAndRefreshOnLogin: _initAndRefreshOnLogin,
-
-         getSettings: _getSettings,
-
          setToken: _setToken,
 
-         // account data
-         getUserName: function () {
-            if (loginData.userAccount) {
-               return loginData.userAccount.email
-            }
-            return ''
-         },
-         getUserId: function () {
-            if (loginData.userAccount) {
-               return loginData.userAccount._id
-            };
-            return ''
-         },
+         initAndRefreshOnLogin: _initAndRefreshOnLogin,
 
-         // rights
+         // account data
+         getSettings: _getSettings, // only for login app; load settings from db for specific token token
+         getUserName: function () { return _getAccountData('email') },
+         getUserId: function () { return _getAccountData('_id') },
+
+         // rights & groups
          hasRight: function (section, access) {
             if (loginData.rights && loginData.rights[section] && loginData.rights[section][access]) { return loginData.rights[section][access] }
          },
-         isLoginAdmin: function () {
-            return loginData.isLoginAdmin || false
-         },
          hasGroup: function (group) { return loginData.groups.indexOf(group) !== -1 },
          hasUserGroup: function (userGroup) { return loginData.userGroups.indexOf(userGroup) !== -1 },
+         isLoginAdmin: function () { return loginData.isLoginAdmin || false },
 
-         // app config
+         // settings
          getGlobalSettings: function () { return loginData.globalSettings },
          getAppSettings: function () { return loginData.appSettings },
          getUserSettings: function () { return loginData.userSettings },
@@ -72,8 +60,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          $window.location.href = _getLoginAppUrl('login', 'redirect')
       }
 
-      function _logout () {
-         // Send logout request to remove the session on the server
+      function _logout () { // Send logout to server and remove session from db
          postToLogin('logout', {
             appSettings: loginData.appSettings
          }, {}, function (res) {
@@ -91,6 +78,19 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          return url
       }
 
+      function _setToken (token) {
+         _getSettings(token)
+      }
+
+      function _reset () { // delete token, settings, ...
+         // console.log('Reset called explicitly')
+         loginData = {}
+         $rootScope.$broadcast('loggedOut')
+      }
+
+      function _getLoggedIn () {
+         return !!loginData.token
+      }
 
       function _initAndRefreshOnLogin (callback) {
          callback(loginData, _getLoggedIn())
@@ -99,37 +99,30 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          })
       }
 
-      function _setToken (token) {
-         _getSettings(token)
-      }
-
-      function _reset () {
-         console.log('Reset called explicitly')
-         // delete token, settings, ...
-         loginData = {}
-         _loggedOut()
-      }
-
-      function _getLoggedIn () {
-         return !!loginData.token
-      }
-
       /* -------------  login data  -------------- */
 
       function _getSettings (token) {
-         console.log('In the settings')
+         console.log('[loginFactory] getSettings')
          postToLogin('get-login-data', {
             app: config.app.name
          }, {}, function (logData) {
             loginData = logData
             console.log('loginFactory received settings:', loginData)
-            _loggedIn()
+            $rootScope.$broadcast('loggedIn', loginData.token)
          }, function (err) {
             if (err === 'noDocumentFoundInDb') {
                _reset()
             }
          })
       }
+
+
+      function _getAccountData (attribute) {
+         return (loginData.userAccount && loginData.userAccount[attribute]) ? loginData.userAccount[attribute] : ''
+      }
+
+
+      /* -------------  settings  -------------- */
 
       function _setAppSettings (appSettings, callback) {
          postToLogin('settings/app', {
@@ -172,14 +165,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                   _logout()
                }
             })
-      }
-
-      function _loggedIn () {
-         $rootScope.$broadcast('loggedIn', loginData.token)
-      }
-
-      function _loggedOut () {
-         $rootScope.$broadcast('loggedOut')
       }
 
       return Services
