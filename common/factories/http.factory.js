@@ -64,6 +64,13 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
       },
 
       get: function (url, data, successFunc, errFunc) {
+         // call without data, maximum tree arguments => skip parameter "data"
+         if (typeof data === 'function') {
+            if (successFunc) errFunc = successFunc
+            successFunc = data
+            data = {}
+         }
+
          data = window.btoa(JSON.stringify(data))
          $http.get(config.serverURL + url + '?data=' + data)
             .success(function (response) {
