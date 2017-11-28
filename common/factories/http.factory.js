@@ -1,20 +1,22 @@
 /**
  * @module http factory
  * @desc backend middleware with methods get and post, error handling included
- * @version 0.1.0
+ * @version 0.1.1
  */
 
 app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $rootScope) {
    var debugMode = false
 
-   function errorFunction (data, status, headers, config, errFunc, url) {
-      console.log(data, ', Status ' + status)
-      if (errFunc) errFunc(data, status, headers, config)
+   function errorFunction (data, status, headers, conf, errFunc, url) {
+      console.log('%c http error on url:' + config.serverURL + url + ', status ' + status, 'background: red; color: white')
+      console.log(data)
+      if (errFunc) errFunc(data, status, headers, conf)
       if (debugMode) {
          $rootScope.$broadcast('note_alert',
             'error posting to: ' + url + ', returned data ' + data + ', status ' + status)
       }
    }
+
 
    function successFunction (type, url, successFunc, response) {
       console.log('successfull ' + type + ' to /' + url)
@@ -24,10 +26,10 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
    function _setHeaderToken (token) {
       if (token) {
          $http.defaults.headers.common['x-access-token'] = token
+         console.log('[http] token set')
       } else {
          delete $http.defaults.headers.common['x-access-token']
       }
-      console.log('The token is set')
    }
 
    // acl: set headers, when token present after login
