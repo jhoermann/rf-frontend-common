@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.7
+ * @version 0.0.8
  */
 
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window',
@@ -33,12 +33,11 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          login: _login,
          logout: _logout,
          getLoggedIn: _getLoggedIn,
-         setToken: _setToken,
+         getLoginData: _getLoginData, // set token and fetch loginData
 
          initAndRefreshOnLogin: _initAndRefreshOnLogin,
 
          // account data
-         getSettings: _getSettings, // only for login app; load settings from db for specific token token
          getUserName: function () { return _getAccountData('email') },
          getUserId: function () { return _getAccountData('_id') },
 
@@ -82,10 +81,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          return url
       }
 
-      function _setToken (token) {
-         _getSettings(token)
-      }
-
       function _reset () { // delete token, settings, ...
          // console.log('Reset called explicitly')
          loginData = {}
@@ -105,8 +100,8 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       /* -------------  login data  -------------- */
 
-      function _getSettings (token) {
-         console.log('[loginFactory] getSettings')
+      function _getLoginData (token) {
+         console.log('[loginFactory] getLoginData')
          postToLogin('get-login-data', {
             app: config.app.name
          }, {}, function (logData) {
