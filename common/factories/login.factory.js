@@ -42,9 +42,9 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          getUserId: function () { return _getAccountData('_id') },
 
          // rights & groups
-         hasRight: function (section, access) {
-            if (loginData.rights && loginData.rights[section] && loginData.rights[section][access]) { return loginData.rights[section][access] }
-         },
+         hasRight: _hasRight,
+         hasAppRight: _hasAppRight,
+
          hasGroup: function (group) { return loginData.groups.indexOf(group) !== -1 },
          hasUserGroup: function (userGroup) { return loginData.userGroups.indexOf(userGroup) !== -1 },
          isLoginAdmin: function () { return loginData.isLoginAdmin || false },
@@ -124,6 +124,21 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _getAccountData (attribute) {
          return (loginData.userAccount && loginData.userAccount[attribute]) ? loginData.userAccount[attribute] : ''
+      }
+
+      function _hasRight (app, section, access) {
+         if (loginData.rights && loginData.rights[app] &&
+             loginData.rights[app][section] && loginData.rights[app][section][access]) {
+            return loginData.rights[app][section][access]
+         }
+      }
+
+      function _hasAppRight (section, access) {
+         if (loginData.globalSettings && loginData.globalSettings.app && loginData.globalSettings.app.name) {
+            return _hasRight(loginData.globalSettings.app.name, section, access)
+         } else {
+            return false
+         }
       }
 
 
