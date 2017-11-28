@@ -23,7 +23,7 @@ app.factory('helperFactory', ['$state', '$rootScope', function ($state, $rootSco
          if (scope.unsaved === true) {
             // If changing to child controller or from child to parent, do not ask for saving
             if (toState.parent === fromState.name || fromState.parent === toState.name) {
-                $state.go(toState, toParams);
+               $state.go(toState, toParams)
             } else {
                event.preventDefault()
                scope.$emit('modal', 'confirm', 'unsavedChangesReallyLeave', {
