@@ -65,10 +65,14 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       function _logout () { // Send logout to server and remove session from db
          postToLogin('logout', {
             appSettings: loginData.appSettings
-         }, {}, function (res) {
+         }, {},
+         reset, // reset on success
+         _reset // also reset on error, withour redirect
+         )
+         function reset () {
             _reset()
             $window.location.href = _getLoginAppUrl('logout')
-         })
+         }
       }
 
       function _getLoginAppUrl (page, redirect, param) {
