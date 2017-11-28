@@ -9,7 +9,7 @@
  *
  * @version 0.0.7
  */
- 
+
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window',
    function ($rootScope, config, $http, $state, $window) {
       var loginData = {
