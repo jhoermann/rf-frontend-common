@@ -31,9 +31,13 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
    }
 
    // acl: set headers, when token present after login
-   $rootScope.$on('loggedInChanged', function (event, token) {
-      console.log('Set header token is called')
+   $rootScope.$on('loggedIn', function (event, token) {
       _setHeaderToken(token)
+   })
+
+   // unset headers after logout
+   $rootScope.$on('loggedOut', function (event) {
+      _setHeaderToken(null)
    })
 
    return {
@@ -62,16 +66,6 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
          $http.get(config.serverURL + url + '?data=' + data)
             .success(function (response) {
                successFunction('GET', url, successFunc, response)
-            })
-            .error(function (data, status, headers, config) {
-               errorFunction(data, status, headers, config, errFunc, url)
-            })
-      },
-
-      put: function (url, data, successFunc, errFunc) {
-         $http.put(config.serverURL + url, data)
-            .success(function (response) {
-               successFunction('PUT', url, successFunc, response)
             })
             .error(function (data, status, headers, config) {
                errorFunction(data, status, headers, config, errFunc, url)
