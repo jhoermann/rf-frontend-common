@@ -69,16 +69,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       }
 
       function _login () {
-         function _getLoginAppUrl (page, redirect, param) {
-            var url = config.loginUrl + '/' + page
-            if (redirect) {
-               url += '?redirect_uri=' + encodeURIComponent($window.location.href) +
-                  ((param) ? ('&' + param) : '')
-            }
-            return url
-         }
-
-         $window.location.href = _getLoginAppUrl('login', true)
+         $window.location.href = _getLoginAppUrl('login', 'redirect')
       }
 
       function _logout () {
@@ -87,10 +78,19 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             appSettings: loginData.appSettings
          }, {}, function (res) {
             _reset()
-            var url = config.loginMainUrl + '/#/login'
-            $window.location.href = url
+            $window.location.href = _getLoginAppUrl('logout')
          })
       }
+
+      function _getLoginAppUrl (page, redirect, param) {
+         var url = config.loginMainUrl + '/#/' + page
+         if (redirect) {
+            url += '?redirect_uri=' + encodeURIComponent($window.location.href) +
+               ((param) ? ('&' + param) : '')
+         }
+         return url
+      }
+
 
       function _initAndRefreshOnLogin (callback) {
          callback(loginData, _getLoggedIn())
