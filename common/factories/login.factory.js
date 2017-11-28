@@ -126,20 +126,19 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          return (loginData.userAccount && loginData.userAccount[attribute]) ? loginData.userAccount[attribute] : ''
       }
 
-      function _hasRight (app, section, access) {
+      function _hasAppRight (app, section, access) {
          if (loginData.rights && loginData.rights[app] &&
              loginData.rights[app][section] && loginData.rights[app][section][access]) {
             return loginData.rights[app][section][access]
-         }
-      }
-
-      function _hasAppRight (section, access) {
-         if (loginData.globalSettings && loginData.globalSettings.app && loginData.globalSettings.app.name) {
-            return _hasRight(loginData.globalSettings.app.name, section, access)
          } else {
             return false
          }
       }
+
+      function _hasRight (section, access) {
+         return _hasAppRight(config.app.name, section, access)
+      }
+
 
 
       /* -------------  settings  -------------- */
