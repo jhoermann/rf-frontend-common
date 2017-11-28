@@ -102,6 +102,8 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _getLoginData (token) {
          console.log('[loginFactory] getLoginData')
+         // ensure, toke is set in header
+         $http.defaults.headers.common['x-access-token'] = token
          postToLogin('get-login-data', {
             app: config.app.name
          }, {}, function (logData) {
