@@ -75,7 +75,8 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       function _getLoginAppUrl (page, redirect, param) {
          var url = config.loginMainUrl + '/#/' + page
          if (redirect) {
-            url += '?redirect_uri=' + encodeURIComponent($window.location.href) +
+            var newUrl = $window.location.href.split('?')[0] // cut away old query parameter
+            url += '?redirect_uri=' + encodeURIComponent(newUrl) +
                ((param) ? ('&' + param) : '')
          }
          return url

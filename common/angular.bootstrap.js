@@ -8,6 +8,11 @@
       var absoluteURL = window.location.href, // window.location.origin // $location.absUrl(),
          servURL
 
+      // cut away query parameters
+      if (absoluteURL.indexOf('?') !== -1) {
+         absoluteURL = absoluteURL.split('?')[0] // take first part of url
+      }
+
       // url including "#" like https://beer.rapidfacture.net/erp/#/login
       if (absoluteURL.indexOf('#') !== -1) {
          servURL = absoluteURL.split('#')[0] // take first part of url
