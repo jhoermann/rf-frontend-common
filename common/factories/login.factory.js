@@ -158,7 +158,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                if (successFunc) successFunc(response)
             })
             .error(function (err, status, headers, config) {
-               console.log(err, ', Status ' + status)
+               console.log('%c http error on url:' + url + ', status ' + status, 'background: red; color: white')
                if (errFunc) errFunc(err, status, headers, config)
                if (err === 'AuthenticateFailed') {
                   _logout()
