@@ -12,7 +12,7 @@
  * "wsConnectionOpen"
  * "noServerConnectionConnectAgaian"
  *
- * @version 0.1.5
+ * @version 0.1.6
  *
  * Code based on:
  * * http://clintberry.com/2013/angular-js-websocket-service/ and
@@ -28,6 +28,8 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
       // websocket object with address to the websocket
       var ws
 
+      var token
+
       var serverURL
 
       var wsConnectionOpen = false
@@ -39,6 +41,17 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
       // stay alive signal
       var keepConIntervalTime = 20, // seconds
          keepConInterval
+
+
+      // acl: set headers, when token present after login
+      $rootScope.$on('loggedIn', function (event, tok) {
+         token = tok
+      })
+
+      // unset headers after logout
+      $rootScope.$on('loggedOut', function (event) {
+         token = null
+      })
 
       /* --------------------------------------- Establish Websocket Connection ---------------------------------------- */
 
@@ -65,6 +78,9 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
             keepConInterval = setInterval(function () {
                keepCon()
             }, keepConIntervalTime * 1000)
+
+
+            sendAllPendingRequests()
 
             wsConnectionOpen = true
             console.log('Websocket connected to: ', serverURL)
@@ -132,32 +148,31 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
             }
          })
 
+         // create new callback ID for a request
+         currentCallbackId++
+         if (currentCallbackId > 10000) {
+            currentCallbackId = 0
+         }
+         callbackId = currentCallbackId
+
+         callbacks[callbackId] = {
+            time: new Date(),
+            cb: defer
+         }
+
+         //    $rootScope.$broadcast("newMessage", messageJson);
+         request.callbackId = callbackId
+
+         // Send auth info if available
+         if (token && typeof token !== 'undefined') {
+            request.token = token
+         }
+
          // connection established?  websockt states: CONNECTING  OPEN  CLOSING  CLOSED
          if (ws && ws.readyState === ws.OPEN) {
-            // create new callback ID for a request
-            currentCallbackId++
-            if (currentCallbackId > 10000) {
-               currentCallbackId = 0
-            }
-            callbackId = currentCallbackId
-
-            callbacks[callbackId] = {
-               time: new Date(),
-               cb: defer
-            }
-
-            //    $rootScope.$broadcast("newMessage", messageJson);
-
-            request.callbackId = callbackId
-
-            // Send auth info if available
-            if ($window.localStorage && typeof $window.localStorage.token !== 'undefined') {
-               request.token = $window.localStorage.token
-            }
-            console.log('Websocket send message: ', request)
-            ws.send(JSON.stringify(request))
+            send(request)
          } else {
-            reject(defer)
+            callbacks[callbackId].req = request
          }
 
          return defer.promise
@@ -187,6 +202,21 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
          $rootScope.$broadcast('noServerConnectionConnectAgaian')
       }
 
+      function sendAllPendingRequests () {
+         for (var callbackId in callbacks) {
+            var callback = callbacks[callbackId]
+            if (callback.req) { // reqest not sent? => try sending now
+               send(callback.req)
+               delete callback.req
+            }
+         }
+      }
+
+
+      function send (req) {
+         console.log('Websocket send message: ', req)
+         ws.send(JSON.stringify(req))
+      }
 
       function keepCon () { // keep alive signal
          return getPromiseFor({
