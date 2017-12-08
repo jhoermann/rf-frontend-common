@@ -7,7 +7,7 @@
  *
  */
 
-(function () {
+function startApp () {
    var initInjector = angular.injector(['ng'])
    var $http = initInjector.get('$http')
 
@@ -56,4 +56,6 @@
          angular.bootstrap(document, ['app'])
       })
    }
-}())
+}
+
+startApp()
