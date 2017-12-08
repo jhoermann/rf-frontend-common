@@ -1,5 +1,6 @@
 /**
  * @module wsConnectionFactory
+ * @version 0.1.7
  * @desc
  * * angular factory for websocket client/server communication, asynchron request
  * * init connection
@@ -7,12 +8,14 @@
  * * log incoming/outgoing messages
  * * all services for the app are listed in wsFactory
  *
+ * rootScope events:
+ * @event wsConnectionOpen
+ * @event noServerConnectionConnectAgaian
+ * @event websocketMessage request is pending or no callbackId found
+ * @event AuthenticateFailed
+ * listen to event "loggedIn"
+ * listen to event "loggedOut"
  *
- * @event
- * "wsConnectionOpen"
- * "noServerConnectionConnectAgaian"
- *
- * @version 0.1.6
  *
  * Code based on:
  * * http://clintberry.com/2013/angular-js-websocket-service/ and
@@ -57,7 +60,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
 
       function initConnection (url) { // init websocket connection
          if (!url) {
-            console.log('wsConnectionFactory: No Server URL specified! Cannot Connect Websocket')
+            log('No Server URL specified! Cannot Connect Websocket')
             return
          }
 
@@ -83,28 +86,31 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
             sendAllPendingRequests()
 
             wsConnectionOpen = true
-            console.log('Websocket connected to: ', serverURL)
+            log('connected to: ', serverURL)
             $rootScope.$broadcast('wsConnectionOpen')
          }
 
          ws.onmessage = function (message) {
             try {
                var messageJson = JSON.parse(message.data)
-               console.log('Websocket receive message: ', messageJson)
-               // For development: Delete invalid token and reset error
-               if (messageJson.data && messageJson.data.err === 'invalid auth token') {
-                  delete $window.localStorage.token
-                  messageJson.err = null
+               log('message received: ', messageJson)
+               if (messageJson.data && messageJson.data.err === 'AuthenticateFailed') {
+                  $rootScope.broadcast('AuthenticateFailed')
+                  log('Authenticate Failed')
+                  token = null
+                  return
                }
 
-               // resolve existing object  with callbackId in callback object
-               if (callbacks.hasOwnProperty(messageJson.callbackId)) {
+               if (callbacks[messageJson.callbackId] && !messageJson.pending) {
+                  // resolve corresponding callback
                   $rootScope.$apply(callbacks[messageJson.callbackId].cb.resolve(messageJson.data))
                   delete callbacks[messageJson.callbackId]
+               } else { // peding requests or without callback => global event
+                  $rootScope.broadcast('websocketMessage', message)
                }
             } catch (error) {
-               console.log('Error in parsing Websocket message:' + error)
-               console.log('Original Websocket message: ', message)
+               log('Error parsing message:' + error)
+               log('Original message: ', message)
             }
          }
 
@@ -115,7 +121,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
                clearInterval(keepConInterval) // clear "keep connection alive interval" function when not connected
             }
             setTimeout(function () {
-               console.log('Websocket connection closed, try reconnecting to ', serverURL)
+               log('connection closed, try reconnecting to ', serverURL)
                initConnection(serverURL)
             }, reconnectTimeout * 1000)
          }
@@ -124,7 +130,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
             if (typeof keepConInterval !== 'undefined') {
                clearInterval(keepConInterval) // clear "keep connection alive interval" function when not connected
             }
-            console.log('Websocket error: ', err.message)
+            log('error: ', err.message)
             ws.close()
          }
       }
@@ -160,7 +166,6 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
             cb: defer
          }
 
-         //    $rootScope.$broadcast("newMessage", messageJson);
          request.callbackId = callbackId
 
          // Send auth info if available
@@ -192,13 +197,13 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
                }
             }
          }
-         console.log('Websocket package rejected: ' + connectionTimeout + ' seconds no reply from server')
+         log('package rejected: ' + connectionTimeout + ' seconds no reply from server')
       }
 
       function closeWebsocket () {
          wsConnectionOpen = false
          ws.close() // intitiate a reconnect
-         console.log('No Websocket connection, try to reconnect.')
+         log('No connection, try to reconnect.')
          $rootScope.$broadcast('noServerConnectionConnectAgaian')
       }
 
@@ -212,9 +217,8 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
          }
       }
 
-
       function send (req) {
-         console.log('Websocket send message: ', req)
+         log('message sent: ', req)
          ws.send(JSON.stringify(req))
       }
 
@@ -227,6 +231,14 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
          })
       }
 
+      function log () {
+         var args = Array.prototype.slice.call(arguments)
+         args.unshift('[Websocket] ')
+         console.log.apply(this, args)
+      }
+
+
+
       return {
 
          initConnection: initConnection,
@@ -235,6 +247,10 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
 
          getWsConnectionOpen: function () {
             return wsConnectionOpen
+         },
+
+         setToken: function (tok) {
+            token = tok
          }
 
       }
