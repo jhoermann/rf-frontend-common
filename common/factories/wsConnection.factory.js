@@ -111,7 +111,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
                var messageJson = JSON.parse(message.data)
                log('receive: ', messageJson)
                if (messageJson.data && messageJson.data.err === 'AuthenticateFailed') {
-                  $rootScope.broadcast('AuthenticateFailed')
+                  $rootScope.$broadcast('AuthenticateFailed')
                   log('Authenticate Failed')
                   token = null
                   return
@@ -122,7 +122,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
                   $rootScope.$apply(callbacks[messageJson.callbackId].cb.resolve(messageJson.data))
                   delete callbacks[messageJson.callbackId]
                } else { // peding requests or without callback => global event
-                  $rootScope.broadcast('websocketMessage', message)
+                  $rootScope.$broadcast('websocketMessage', message)
                }
             } catch (error) {
                log('Error parsing message:' + error)
