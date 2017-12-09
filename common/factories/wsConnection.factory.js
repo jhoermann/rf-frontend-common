@@ -1,11 +1,13 @@
 /**
  * @module wsConnectionFactory
- * @version 0.1.7
+ * @version 0.1.8
  * @desc
  * * angular factory for websocket client/server communication, asynchron request
  * * init connection
  * * reconnect on errors, connection timeout
  * * log incoming/outgoing messages
+ * * reuest are stored and a promise is given back; it is resolved, when the backend answer arrives
+ * * pending requests (several backend answers for one request) or backend message without request: broadcast over rootScope
  * * all services for the app are listed in wsFactory
  *
  * rootScope events:
@@ -24,14 +26,25 @@
 
 app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
    function ($q, $rootScope, $window) {
-      // Keep pending requests here until they get responses
+      var Services = {
+
+         initConnection: _initConnection,
+
+         getPromiseFor: _getPromiseFor,
+
+         getWsConnectionOpen: function () {
+            return wsConnectionOpen
+         },
+
+         setToken: _setToken
+      }
+
+      // keep pending requests until responses arrives
       var callbacks = {}
       // unique callback ID to map requests to responses
       var currentCallbackId = 0
       // websocket object with address to the websocket
       var ws
-
-      var token
 
       var serverURL
 
@@ -41,24 +54,27 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
       var connectionTimeout = 5, // seconds
          firstFailure = true // reject packges after second error => prevent to many error messages
 
-      // stay alive signal
+      // stay alive signal; needed to prevent firewalls cutting of the line after certain time
       var keepConIntervalTime = 20, // seconds
          keepConInterval
 
 
-      // acl: set headers, when token present after login
-      $rootScope.$on('loggedIn', function (event, tok) {
-         token = tok
+      // sent with each request to backend for acl
+      var token
+
+      // set token after login
+      $rootScope.$on('loggedIn', function (event, token) {
+         _setToken(token)
       })
 
       // unset headers after logout
       $rootScope.$on('loggedOut', function (event) {
-         token = null
+         _setToken(null)
       })
 
       /* --------------------------------------- Establish Websocket Connection ---------------------------------------- */
 
-      function initConnection (url) { // init websocket connection
+      function _initConnection (url) { // init websocket connection
          if (!url) {
             log('No Server URL specified! Cannot Connect Websocket')
             return
@@ -93,7 +109,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
          ws.onmessage = function (message) {
             try {
                var messageJson = JSON.parse(message.data)
-               log('message received: ', messageJson)
+               log('receive: ', messageJson)
                if (messageJson.data && messageJson.data.err === 'AuthenticateFailed') {
                   $rootScope.broadcast('AuthenticateFailed')
                   log('Authenticate Failed')
@@ -122,7 +138,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
             }
             setTimeout(function () {
                log('connection closed, try reconnecting to ', serverURL)
-               initConnection(serverURL)
+               _initConnection(serverURL)
             }, reconnectTimeout * 1000)
          }
 
@@ -135,16 +151,19 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
          }
       }
 
-      /* ======================================= Handle Requests ======================================== */
 
-      var timeoutArray = [] //
+      function _setToken (tok) {
+         token = tok
+      }
 
-      function getPromiseFor (request) {
+
+      var timeoutArray = []
+      function _getPromiseFor (request) { // handle Rrquests
          var defer = $q.defer(), callbackId
 
          // reject package, when timeout reached
          timeoutArray.push(setTimeout(function () {
-            reject(defer)
+            _reject(defer)
          }, connectionTimeout * 1000))
 
          // disable closing the connection, when answer arrives before
@@ -183,24 +202,26 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
          return defer.promise
       }
 
-      function reject (defer) { // called on connection errors
+
+
+      function _reject (defer) { // called on connection errors
          defer.reject()
          if (ws) {
             if (ws.readyState !== ws.OPEN) { // socket no longer open => reconnect
-               closeWebsocket()
+               _closeWebsocket()
             } else { // state is still open, but connectionTimeout passed; connection might be lost
                if (firstFailure) { // try one more send
                   firstFailure = false
                   keepCon()
                } else {
-                  closeWebsocket()
+                  _closeWebsocket()
                }
             }
          }
          log('package rejected: ' + connectionTimeout + ' seconds no reply from server')
       }
 
-      function closeWebsocket () {
+      function _closeWebsocket () {
          wsConnectionOpen = false
          ws.close() // intitiate a reconnect
          log('No connection, try to reconnect.')
@@ -218,12 +239,12 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
       }
 
       function send (req) {
-         log('message sent: ', req)
+         log('sent: ', req)
          ws.send(JSON.stringify(req))
       }
 
       function keepCon () { // keep alive signal
-         return getPromiseFor({
+         return _getPromiseFor({
             func: 'keepCon',
             keepCon: {
                keepCon: true
@@ -239,20 +260,6 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
 
 
 
-      return {
-
-         initConnection: initConnection,
-
-         getPromiseFor: getPromiseFor,
-
-         getWsConnectionOpen: function () {
-            return wsConnectionOpen
-         },
-
-         setToken: function (tok) {
-            token = tok
-         }
-
-      }
+      return Services
    }
 ])
