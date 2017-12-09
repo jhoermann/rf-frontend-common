@@ -1,11 +1,11 @@
 /**
  * @module dateFactory
- * @version 0.1.0
+ * @version 0.1.1
  */
 
 app.factory('dateFactory', [function () {
-   function getDate (date) {
-      if (date) {
+   function _formatDate (date) { // helper function to build date strings
+      if (_isDate(date)) {
          date = new Date(date)
       } else {
          date = new Date()
@@ -31,11 +31,16 @@ app.factory('dateFactory', [function () {
       }
    }
 
+   function _isDate (date) { // validate a Date
+      var newDate = new Date(date)
+      return (newDate !== 'Invalid Date' && !isNaN(newDate))
+   }
+
    return {
       getDateStringWithDots: function (date) { // return:  02.10.2018
          date = new Date(date)
-         var newDate = getDate(date)
-         return (newDate.dd + '.' + newDate.mm + '.' + newDate.yyyy)
+         var formatedDate = _formatDate(date)
+         return (formatedDate.dd + '.' + formatedDate.mm + '.' + formatedDate.yyyy)
       },
       getMonth: function (date) { // return:  February
          date = new Date(date)
@@ -43,20 +48,21 @@ app.factory('dateFactory', [function () {
          return (monthNames[date.getMonth()])
       },
       getDateStringForFileName: function (date) { // return:  181002
-         var newDate = getDate(date)
-         return (newDate.yyyy.toString().substring(2, 4) + newDate.mm + newDate.dd)
+         var formatedDate = _formatDate(date)
+         return (formatedDate.yyyy.toString().substring(2, 4) + formatedDate.mm + formatedDate.dd)
       },
       getDateFromObjectId: function (objectId) { // return:  Date
          return new Date(parseInt(objectId.substring(0, 8), 16) * 1000)
       },
       getDateStringFromObjectId: function (objectId) { // return:  02.10.2018
          var date = new Date(parseInt(objectId.substring(0, 8), 16) * 1000)
-         var newDate = getDate(date)
-         return (newDate.dd + '.' + newDate.mm + '.' + newDate.yyyy)
+         var formatedDate = _formatDate(date)
+         return (formatedDate.dd + '.' + formatedDate.mm + '.' + formatedDate.yyyy)
       },
       dateInThePast: function (milliSecsInThePast) { // return:  Date   x milliseconds ago
          return new Date(new Date().getTime() - milliSecsInThePast)
-      }
+      },
+      isDate: _isDate
    }
 }
 
