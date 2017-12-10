@@ -1,7 +1,7 @@
 /**
  * @module http factory
  * @desc backend middleware with methods get and post, error handling included
- * @version 0.1.1
+ * @version 0.1.2
  */
 
 app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $rootScope) {
@@ -97,7 +97,38 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
                errorFunction(data, status, headers, config, errFunc, url)
             })
       },
-
+      fileSave: function (url, data, successFunc, errFunc) {
+         var headers = data.headers || {}
+         headers['Content-type'] = 'application/octet-stream'
+         headers.preview = (data.mimeType === 'application/pdf') ? 'true' : 'false'
+         $http({
+            method: 'PUT',
+            url: config.serverURL + url,
+            data: data.content,
+            headers: headers,
+            transformRequest: []
+         })
+            .success(function (response) {
+               successFunction('PUT', url, successFunc, response)
+            })
+            .error(function (data, status, headers, config) {
+               errorFunction(data, status, headers, config, errFunc, url)
+            })
+      },
+      fileDownload: function (url, data, successFunc, errFunc) {
+         $http({
+            method: 'POST',
+            url: config.serverURL + 'drawingbinary',
+            data: {data: data},
+            responseType: 'arraybuffer'
+         })
+            .success(function (response) {
+               successFunction('PUT', url, successFunc, response)
+            })
+            .error(function (data, status, headers, config) {
+               errorFunction(data, status, headers, config, errFunc, url)
+            })
+      },
       setHeaderToken: _setHeaderToken
    }
 }])
