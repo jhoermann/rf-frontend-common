@@ -102,7 +102,7 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
          headers['Content-type'] = 'application/octet-stream'
          headers.preview = (data.mimeType === 'application/pdf') ? 'true' : 'false'
          $http({
-            method: 'PUT',
+            method: 'POST',
             url: config.serverURL + url,
             data: data.content,
             headers: headers,
