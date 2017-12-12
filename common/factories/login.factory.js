@@ -96,7 +96,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             var newUrl = $window.location.href.split('?')[0] // cut away old query parameter
             // Fix for non ui-router routes redirect
             if (!$state.current.name && !$window.location.hash) {
-               newUrl = $location.origin + '/#/'
+               newUrl = $window.location.origin + '/#/'
             }
             url += '?redirect_uri=' + encodeURIComponent(newUrl) +
                ((param) ? ('&' + param) : '')
