@@ -11,20 +11,9 @@ function startApp () {
    var initInjector = angular.injector(['ng'])
    var $http = initInjector.get('$http')
 
-   var absoluteURL = window.location.href, // window.location.origin // $location.absUrl(),
-      servURL
-
-   // url including "#" like https://beer.rapidfacture.net/erp/#/login
-   if (absoluteURL.indexOf('#') !== -1) {
-      servURL = absoluteURL.split('#')[0] // take first part of url
-      // url without "#" like https://beer.rapidfacture.net/erp/
-   } else {
-      console.log('absoluteURL')
-      servURL = absoluteURL
-      // add "/" if not present as last character
-      if (absoluteURL.charAt(absoluteURL.length - 1) !== '/') {
-         servURL += '/'
-      }
+   var servURL = window.location.origin + window.location.pathname
+   if (servURL.charAt(servURL.length - 1) !== '/') {
+      servURL += '/'
    }
 
    var baseConfig = {

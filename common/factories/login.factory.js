@@ -10,8 +10,8 @@
  * @version 0.0.8
  */
 
-app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window',
-   function ($rootScope, config, $http, $state, $window) {
+app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location',
+   function ($rootScope, config, $http, $state, $window, $location) {
       var loginData = {
          /* ---- from session db ---- */
          // token
@@ -30,6 +30,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       var Services = {
 
          // login
+         run: _run,
          login: _login,
          logout: _logout,
          getLoggedIn: _getLoggedIn,
@@ -58,6 +59,17 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          setUserSettings: _setUserSettings
       }
 
+      function _run () {
+         var self = this,
+            token = $location.search().token
+
+         if (token) { // token from login page
+            self.getLoginData(token)
+         } else {
+            self.login()
+         }
+      }
+
       function _login () {
          $window.location.href = _getLoginAppUrl('login', 'redirect')
       }
@@ -77,8 +89,13 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _getLoginAppUrl (page, redirect, param) {
          var url = config.loginMainUrl + '/#/' + page
+
          if (redirect) {
             var newUrl = $window.location.href.split('?')[0] // cut away old query parameter
+            // Fix for non ui-router routes redirect
+            if (!$state.current.name && !$window.location.hash) {
+               newUrl = $location.origin + '/#/'
+            }
             url += '?redirect_uri=' + encodeURIComponent(newUrl) +
                ((param) ? ('&' + param) : '')
          }
