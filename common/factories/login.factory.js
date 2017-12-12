@@ -59,11 +59,13 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          setUserSettings: _setUserSettings
       }
 
-      function _run () {
+      function _run (skipLoginCheck) {
          var self = this,
             token = $location.search().token
 
-         if (token) { // token from login page
+         skipLoginCheck = skipLoginCheck || false
+
+         if (token || skipLoginCheck) { // token from login page
             self.getLoginData(token)
          } else {
             self.login()
