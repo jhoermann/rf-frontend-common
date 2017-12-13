@@ -243,12 +243,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
       }
 
       function keepCon () { // keep alive signal
-         return _sendWSMessageAndGetResponsePromise({
-            func: 'keepCon',
-            keepCon: {
-               keepCon: true
-            }
-         })
+         return _sendWSMessageAndGetResponsePromise('keepCon', {})
       }
 
       function log () {
