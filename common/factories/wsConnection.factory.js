@@ -30,7 +30,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
 
          initConnection: _initConnection,
 
-         getPromiseFor: _getPromiseFor,
+         sendWSMessageAndGetResponsePromise: _sendWSMessageAndGetResponsePromise,
 
          getWsConnectionOpen: function () {
             return wsConnectionOpen
@@ -156,11 +156,21 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
          token = tok
       }
 
-
       var timeoutArray = []
-      function _getPromiseFor (request) { // handle Rrquests
-         var defer = $q.defer(), callbackId
 
+      function clearAllTimeouts () {
+         for (var i = 0; i < timeoutArray.length; i++) {
+            clearTimeout(timeoutArray[i])
+         }
+      }
+
+
+      function _sendWSMessageAndGetResponsePromise (func, data) { // handle Rrquests
+         var defer = $q.defer()
+
+         // generate new callback ID for message
+         currentCallbackId = (currentCallbackId + 1) % 100000
+         var callbackId = currentCallbackId
          // reject package, when timeout reached
          timeoutArray.push(setTimeout(function () {
             _reject(defer)
@@ -168,28 +178,19 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
 
          // disable closing the connection, when answer arrives before
          defer.promise.then(function () {
-            for (var i = 0; i < timeoutArray.length; i++) {
-               clearTimeout(timeoutArray[i])
-            }
+            clearAllTimeouts()
          })
-
-         // create new callback ID for a request
-         currentCallbackId++
-         if (currentCallbackId > 10000) {
-            currentCallbackId = 0
-         }
-         callbackId = currentCallbackId
 
          callbacks[callbackId] = {
             time: new Date(),
             cb: defer
          }
 
-         request.callbackId = callbackId
-
-         // Send auth info if available
-         if (token && typeof token !== 'undefined') {
-            request.token = token
+         var request = {
+            func: func,
+            callbackId: callbackId,
+            token: token, // might be null or undefined, dont care about that
+            data: data
          }
 
          // connection established?  websockt states: CONNECTING  OPEN  CLOSING  CLOSED
@@ -201,8 +202,6 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
 
          return defer.promise
       }
-
-
 
       function _reject (defer) { // called on connection errors
          defer.reject()
@@ -244,7 +243,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
       }
 
       function keepCon () { // keep alive signal
-         return _getPromiseFor({
+         return _sendWSMessageAndGetResponsePromise({
             func: 'keepCon',
             keepCon: {
                keepCon: true
