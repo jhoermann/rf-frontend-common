@@ -205,6 +205,20 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             })
       }
 
+      /**
+       * Get the "small" token as a string
+       */
+      $rootScope.getToken = function () {
+         return null // TODO marc
+      }
+
+      /**
+       * Get the user info object stored in the large token
+       */
+      $rootScope.getUserInfo = function () {
+         return {} // TODO marc
+      }
+
       return Services
    }
 ])

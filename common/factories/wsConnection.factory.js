@@ -24,8 +24,8 @@
  * * http://stackoverflow.com/questions/22431751/websocket-how-to-automatically-reconnect-after-it-dies
  */
 
-app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
-   function ($q, $rootScope, $window) {
+app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory',
+   function ($q, $rootScope, $window, loginFactory) {
       var Services = {
 
          initConnection: _initConnection,
@@ -189,7 +189,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window',
          var request = {
             func: func,
             callbackId: callbackId,
-            token: token, // might be null or undefined, dont care about that
+            token: loginFactory.getToken(), // might be null or undefined, that's OK(-ish)
             data: data
          }
 
