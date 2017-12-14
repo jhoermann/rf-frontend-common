@@ -34,9 +34,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
 
          getWsConnectionOpen: function () {
             return wsConnectionOpen
-         },
-
-         setToken: _setToken
+         }
       }
 
       // keep pending requests until responses arrives
@@ -58,19 +56,6 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
       var keepConIntervalTime = 20, // seconds
          keepConInterval
 
-
-      // sent with each request to backend for acl
-      var token
-
-      // set token after login
-      $rootScope.$on('loggedIn', function (event, token) {
-         _setToken(token)
-      })
-
-      // unset headers after logout
-      $rootScope.$on('loggedOut', function (event) {
-         _setToken(null)
-      })
 
       /* --------------------------------------- Establish Websocket Connection ---------------------------------------- */
 
@@ -113,7 +98,6 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
                if (messageJson.data && messageJson.data.err === 'AuthenticateFailed') {
                   $rootScope.$broadcast('AuthenticateFailed')
                   log('Authenticate Failed')
-                  token = null
                   return
                }
 
@@ -149,11 +133,6 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
             log('error: ', err.message)
             ws.close()
          }
-      }
-
-
-      function _setToken (tok) {
-         token = tok
       }
 
       var timeoutArray = []
