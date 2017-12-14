@@ -56,7 +56,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          getUserSettings: function () { return loginData.userSettings },
 
          setAppSettings: _setAppSettings,
-         setUserSettings: _setUserSettings
+         setUserSettings: _setUserSettings,
+
+         getToken: _getToken,
+         getUserInfo: _getUserInfo
       }
 
       function _run (skipLoginCheck) {
@@ -208,14 +211,14 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       /**
        * Get the "small" token as a string
        */
-      $rootScope.getToken = function () {
+      function _getToken () {
          return null // TODO marc
       }
 
       /**
        * Get the user info object stored in the large token
        */
-      $rootScope.getUserInfo = function () {
+      function _getUserInfo () {
          return {} // TODO marc
       }
 
