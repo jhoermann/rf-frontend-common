@@ -40,7 +40,7 @@ function startApp () {
    function bootstrapApplication (baseConfig) {
       tokenFactory.config = baseConfig
 
-      if (tokenFactory.hasToken() || tokenFactory.isInternal()) {
+      if (tokenFactory.hasToken() || tokenFactory.isInternal() || tokenFactory.isLoginApp()) {
          app.constant('config', baseConfig)
          angular.element(document).ready(function () {
             angular.bootstrap(document, ['app'])
@@ -72,8 +72,17 @@ angular.module('tokenModule', []).config(['$provide', function ($provide) {
          isInternal: function () {
             var self = this,
                internal = self.getUrlParameter('internal')
+            return internal === 'ksdf6s80fsa9s0madf7s9df'
+         },
 
-            return internal && internal === 'ksdf6s80fsa9s0madf7s9df'
+         isLoginApp: function () {
+            var self = this,
+               // For dev replace localhost always by ip
+               origin = window.location.origin.replace('localhost', '127.0.0.1'),
+               // For dev replace localhost always by ip
+               loginUri = self.config.loginMainUrl.replace('localhost', '127.0.0.1')
+
+            return (origin === loginUri)
          },
 
          getLoginAppUrl: function (page, redirect, param) {
