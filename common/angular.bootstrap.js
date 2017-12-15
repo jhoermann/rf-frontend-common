@@ -16,26 +16,36 @@ function startApp () {
       servURL += '/'
    }
 
-   var baseConfig = {
+   // Always try to get the base-config
+   var baseConfig = readFromLocalStorage('baseConfig') || {
       'serverURL': servURL,
-      'wsUrl': servURL.replace('http', 'ws')
+      'wsUrl': servURL.replace('http', 'ws'),
+      'cached': false
    }
 
    // try to get login url from backend
    var url = baseConfig.serverURL + 'basic-config'
-   console.log('get basic config from ', url)
 
-   $http.post(url, {data: ''})
-      .success(function (response) {
-         for (var key in response) {
-            baseConfig[key] = response[key]
-         }
-         bootstrapApplication(baseConfig)
-      })
-      .error(function (err) { // could not post, rf-acl not present => still bootstrap the app
-         console.log(err)
-         bootstrapApplication(baseConfig)
-      })
+   // If baseConfig cached is true then its a already loaded and cached version so just use it
+   if (baseConfig['cached']) {
+      bootstrapApplication(baseConfig)
+   } else {
+      $http.post(url, {data: ''})
+         .success(function (response) {
+            for (var key in response) {
+               baseConfig[key] = response[key]
+            }
+            baseConfig['cached'] = true // Set config as cached so next load would not request again
+
+            window.localStorage.setItem('baseConfig', JSON.stringify(baseConfig))
+
+            bootstrapApplication(baseConfig)
+         })
+         .error(function (err) { // could not post, rf-acl not present => still bootstrap the app
+            console.log(err)
+            bootstrapApplication(baseConfig)
+         })
+   }
 
    function bootstrapApplication (baseConfig) {
       tokenFactory.config = baseConfig
@@ -47,8 +57,15 @@ function startApp () {
          })
          return
       }
+
       tokenFactory.login()
    }
+}
+
+function readFromLocalStorage (key) {
+   var config = window.localStorage.getItem(key)
+   if (config) config = JSON.parse(config)
+   return config || null
 }
 
 /**
@@ -57,11 +74,17 @@ function startApp () {
 angular.module('tokenModule', []).config(['$provide', function ($provide) {
    $provide.factory('tokenFactory', function () {
       return {
-         config: null,
+         // Always try to get the base-config
+         config: readFromLocalStorage('baseConfig') || {},
 
          login: function () {
             var self = this
             window.location.href = self.getLoginAppUrl('login', 'redirect', 'app=' + self.config.app.name)
+         },
+
+         logout: function () {
+            var self = this
+            window.location.href = self.getLoginAppUrl('logout', false)
          },
 
          hasToken: function () {
