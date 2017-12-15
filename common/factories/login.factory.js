@@ -36,6 +36,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          getLoggedIn: _getLoggedIn,
 
          getUserData: _getUserData, // return user
+         setLoginData: _setLoginData,
 
          initAndRefreshOnLogin: _initAndRefreshOnLogin,
 
