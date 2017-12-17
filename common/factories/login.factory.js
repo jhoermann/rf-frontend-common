@@ -10,8 +10,8 @@
  * @version 0.0.8
  */
 
-app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location',
-   function ($rootScope, config, $http, $state, $window, $location) {
+app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q', 'tokenFactory',
+   function ($rootScope, config, $http, $state, $window, $location, $q, tokenFactory) {
       var loginData = {
          /* ---- from session db ---- */
          // token
@@ -34,13 +34,19 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          login: _login,
          logout: _logout,
          getLoggedIn: _getLoggedIn,
-         getLoginData: _getLoginData, // set token and fetch loginData
+
+         getUserData: _getUserData, // return user
+         setLoginData: _setLoginData,
 
          initAndRefreshOnLogin: _initAndRefreshOnLogin,
 
          // account data
          getUserName: function () { return _getAccountData('email') },
          getUserId: function () { return _getAccountData('_id') },
+
+         getToken: _getToken,
+         verifyToken: _verifyToken,
+         refreshToken: _refreshToken,
 
          // rights & groups
          hasRight: _hasRight,
@@ -56,101 +62,114 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          getUserSettings: function () { return loginData.userSettings },
 
          setAppSettings: _setAppSettings,
-         setUserSettings: _setUserSettings,
-
-         getToken: _getToken,
-         getUserInfo: _getUserInfo
+         setUserSettings: _setUserSettings
       }
 
-      function _run (skipLoginCheck) {
-         var self = this,
-            token = $location.search().token
+      function _run (token) {
+         token = token || $location.search().token
 
-         skipLoginCheck = skipLoginCheck || false
-
-         if (token || skipLoginCheck) { // token from login page
-            self.getLoginData(token)
-         } else {
-            self.login()
+         // If no token is presented and skipLoginCheck is false then redirect to login page
+         if (!token && !tokenFactory.isInternal()) {
+            tokenFactory.login()
+            return
          }
+         _setLoginData(token) // Set new login token data
+         _redirectWithoutToken() // Redirect and remove the token from url
       }
 
       function _login () {
-         $window.location.href = _getLoginAppUrl('login', 'redirect')
+         tokenFactory.login()
       }
 
+      /**
+       * Redirect user to logout page
+      */
       function _logout () { // Send logout to server and remove session from db
-         postToLogin('logout', {
-            appSettings: loginData.appSettings
-         }, {},
-         reset, // reset on success
-         _reset // also reset on error, withour redirect
-         )
-         function reset () {
-            _reset()
-            $window.location.href = _getLoginAppUrl('logout')
-         }
+         tokenFactory.logout()
       }
 
-      function _getLoginAppUrl (page, redirect, param) {
-         var url = config.loginMainUrl + '/#/' + page
-
-         if (redirect) {
-            var newUrl = $window.location.href.split('?')[0] // cut away old query parameter
-            // Fix for non ui-router routes redirect
-            if (!$state.current.name && !$window.location.hash) {
-               newUrl = $window.location.origin + '/#/'
-            }
-            url += '?redirect_uri=' + encodeURIComponent(newUrl) +
-               ((param) ? ('&' + param) : '')
-         }
-         return url
-      }
-
-      function _reset () { // delete token, settings, ...
-         // console.log('Reset called explicitly')
-         loginData = {}
-         $rootScope.$broadcast('loggedOut')
-      }
-
+      /**
+       * Check if token is presented
+      */
       function _getLoggedIn () {
          return !!loginData.token
       }
 
+      /**
+       * Call a refresh function if login data changes
+      * This is needed for directive refresh
+      * @param {*} callback
+      */
       function _initAndRefreshOnLogin (callback) {
          callback(loginData, _getLoggedIn())
-         $rootScope.$on('loggedIn', function () {
+         $rootScope.$on('loginChanged', function () {
             callback(loginData, _getLoggedIn())
          })
       }
 
       /* -------------  login data  -------------- */
 
-      function _getLoginData (token) {
-         console.log('[loginFactory] getLoginData')
-         // ensure, toke is set in header
-         $http.defaults.headers.common['x-access-token'] = token
-         postToLogin('get-login-data', {
-            app: config.app.name
-         }, {}, function (logData) {
-            loginData = logData
-            console.log('loginFactory received settings:', loginData)
-            $rootScope.$broadcast('loggedIn', loginData.token)
-         }, function (err) {
-            if (err === 'noDocumentFoundInDb') {
-               _reset()
-            }
+      function _getToken () {
+         return loginData.token
+      }
+
+      function _getUserData () {
+         return loginData.user
+      }
+
+      /**
+       * Verify the token
+      */
+      function _verifyToken () {
+         return $q(function (resolve, reject) {
+            postToLogin('verify', {}, {}).then(function (data) {
+               console.log('[loginFactory] token verified!')
+               resolve()
+            }, function (err) {
+               console.log('[loginFactory] ' + err.msg)
+               _refreshToken().then(function () {
+                  resolve()
+               }, function () {
+                  reject()
+               })
+            })
          })
       }
 
+      /**
+       * Retrive a new token with the old one
+      */
+      function _refreshToken () {
+         return $q(function (resolve, reject) {
+            postToLogin('refresh', {}, {}).then(function (token) {
+               console.log('[loginFactory] token refreshed!')
+               _setLoginData(token)
+               resolve()
+            }, function (err) {
+               console.log('[loginFactory] ' + err.msg)
+               reject()
+            })
+         })
+      }
+
+      /**
+       * Use respond token and set new loginData
+      * @param {*} token
+      */
+      function _setLoginData (token) {
+         var payload = token.split('.')[1],
+            payloadBase64 = payload.replace(/-/g, '+').replace(/_/g, '/')
+         loginData = JSON.parse(window.atob(payloadBase64))
+         $rootScope.$broadcast('loginChanged')
+      }
 
       function _getAccountData (attribute) {
-         return (loginData.userAccount && loginData.userAccount[attribute]) ? loginData.userAccount[attribute] : ''
+         return (loginData.user && loginData.user[attribute]) ? loginData.user[attribute] : ''
       }
 
       function _hasAppRight (app, section, access) {
          if (loginData.rights && loginData.rights[app] &&
-             loginData.rights[app][section] && loginData.rights[app][section][access]) {
+          loginData.rights[app][section] && loginData.rights[app][section][access]) {
             return loginData.rights[app][section][access]
          } else {
             return false
@@ -161,65 +180,69 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          return _hasAppRight(config.app.name, section, access)
       }
 
+      /**
+       * Redirect without token parameter in the url
+      */
+      function _redirectWithoutToken () {
+         var href = $window.location.href
+         // Regex is: ([\?\&])token=[^\?\&]*([\?\&]|$) but eslint needs unicodes because of bad escaping error
+         var re = new RegExp('([\u003F\u0026])token=[^\u003F\u0026]*([\u003F\u0026]|$)')
 
+         // Replace the token in the url but keep the next or previous parameters
+         href = href.replace(re, function (match, p1, p2) {
+            if (p2) return p1
+            return ''
+         })
+
+         $window.location.href = href
+      }
 
       /* -------------  settings  -------------- */
 
       function _setAppSettings (appSettings, callback) {
          postToLogin('settings/app', {
             appSettings: loginData.appSettings
-         }, {}, function (settings) {
+         }, {}).then(function (settings) {
             if (callback) callback(settings)
+         }, function (err) {
+            console.log(err)
          })
       }
 
       function _setUserSettings (userSettings, callback) {
          postToLogin('settings/app/user', {
             userSettings: loginData.userSettings
-         }, {}, function (settings) {
+         }, {}).then(function (settings) {
             if (callback) callback(settings)
+         }, function (err) {
+            console.log(err)
          })
       }
 
       /* ------------- helper functions --------------- */
 
-      function postToLogin (subUrl, data, options, successFunc, errFunc) {
-         var url = config.loginMainUrl + '/' + subUrl
-         options = options || {}
+      function postToLogin (subUrl, data, options) {
+         return $q(function (resolve, reject) {
+            var url = config.loginMainUrl + '/' + subUrl
+            options = options || {}
 
-         if (loginData.token) { // If a token is available set it on every request
-            options['x-access-token'] = loginData.token
-         }
+            if (loginData.token) { // If a token is available set it on every request
+               options['x-access-token'] = loginData.token
+            }
 
-         $http.post(url, {
-            data: data
-         }, options)
+            $http.post(url, {
+               data: data
+            }, options)
             // {data: data} - always parse as json, prevent body-parser errors in node backend
             .success(function (response) {
                console.log('successfull posted to /' + url)
-               if (successFunc) successFunc(response)
+               resolve(response)
             })
             .error(function (err, status, headers, config) {
                console.log('%c http error on url:' + url + ', status ' + status, 'background: red; color: white')
-               if (errFunc) errFunc(err, status, headers, config)
-               if (err === 'AuthenticateFailed') {
-                  _logout()
-               }
+               reject(err, status, headers, config)
             })
-      }
-
-      /**
-       * Get the "small" token as a string
-       */
-      function _getToken () {
-         return null // TODO marc
-      }
-
-      /**
-       * Get the user info object stored in the large token
-       */
-      function _getUserInfo () {
-         return {} // TODO marc
+         })
       }
 
       return Services
