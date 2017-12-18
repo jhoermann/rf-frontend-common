@@ -234,14 +234,14 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                data: data
             }, options)
             // {data: data} - always parse as json, prevent body-parser errors in node backend
-            .success(function (response) {
-               console.log('successfull posted to /' + url)
-               resolve(response)
-            })
-            .error(function (err, status, headers, config) {
-               console.log('%c http error on url:' + url + ', status ' + status, 'background: red; color: white')
-               reject(err, status, headers, config)
-            })
+               .success(function (response) {
+                  console.log('successfull posted to /' + url)
+                  resolve(response)
+               })
+               .error(function (err, status, headers, config) {
+                  console.log('%c http error on url:' + url + ', status ' + status, 'background: red; color: white')
+                  reject(err, status, headers, config)
+               })
          })
       }
 
