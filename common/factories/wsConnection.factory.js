@@ -95,7 +95,10 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
             try {
                var messageJson = JSON.parse(message.data)
                log('receive: ', messageJson)
-               if (messageJson.data && messageJson.data.err === 'AuthenticateFailed') {
+               if (messageJson.data &&
+                    (messageJson.data.err === 'AuthenticateFailed' ||
+                    messageJson.err === 'AuthenticateFailed')
+               ) {
                   $rootScope.$broadcast('AuthenticateFailed')
                   log('Authenticate Failed')
                   return
