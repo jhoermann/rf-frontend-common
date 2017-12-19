@@ -70,6 +70,10 @@ function readFromLocalStorage (key) {
 
 /**
  * Angular module to check token and redirect
+ * Got an error about tokenFactory not found ($injector:unpr)?
+ * Just go to your application's "var app = ..."
+ * declaration and add 'tokenModule' to the dependencies
+ * i.e. the second list of angular.module
 */
 angular.module('tokenModule', []).config(['$provide', function ($provide) {
    $provide.factory('tokenFactory', function () {
