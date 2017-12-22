@@ -70,6 +70,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
          // If no token is presented and skipLoginCheck is false then redirect to login page
          if (!token && !tokenFactory.isInternal()) {
+            _clearLoginData() // Safety clear the loginData if no token is presented and broadcast a loggedOut event to remove old data
             tokenFactory.login()
             return
          }
@@ -102,7 +103,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       */
       function _initAndRefreshOnLogin (callback) {
          callback(loginData, _getLoggedIn())
-         $rootScope.$on('loginChanged', function () {
+         $rootScope.$on('loggedIn', function () {
+            callback(loginData, _getLoggedIn())
+         })
+         $rootScope.$on('loggedOut', function () {
             callback(loginData, _getLoggedIn())
          })
       }
@@ -126,12 +130,8 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                console.log('[loginFactory] token verified!')
                resolve()
             }, function (err) {
-               console.log('[loginFactory] ' + err.msg)
-               _refreshToken().then(function () {
-                  resolve()
-               }, function () {
-                  reject()
-               })
+               console.log('[loginFactory] ' + err)
+               reject()
             })
          })
       }
@@ -141,12 +141,13 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       */
       function _refreshToken () {
          return $q(function (resolve, reject) {
-            postToLogin('refresh', {}, {}).then(function (token) {
+            postToLogin('refresh', {}, {}).then(function (res) {
                console.log('[loginFactory] token refreshed!')
-               _setLoginData(token)
+               _setLoginData(res.token)
+               console.log(res.token)
                resolve()
             }, function (err) {
-               console.log('[loginFactory] ' + err.msg)
+               console.log('[loginFactory] ' + err)
                reject()
             })
          })
@@ -160,7 +161,13 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          var payload = token.split('.')[1],
             payloadBase64 = payload.replace(/-/g, '+').replace(/_/g, '/')
          loginData = JSON.parse(window.atob(payloadBase64))
-         $rootScope.$broadcast('loginChanged')
+         console.log('TOKEN: ' + loginData.token)
+         $rootScope.$broadcast('loggedIn', loginData.token)
+      }
+
+      function _clearLoginData () {
+         loginData = {}
+         $rootScope.$broadcast('loggedOut')
       }
 
       function _getAccountData (attribute) {

@@ -4,7 +4,7 @@
  * @version 0.1.2
  */
 
-app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $rootScope) {
+app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function ($http, config, $rootScope, loginFactory) {
    var debugMode = false
 
    function errorFunction (data, status, headers, conf, errFunc, url) {
@@ -25,9 +25,10 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
 
    function _setHeaderToken (token) {
       if (token) {
-         $http.defaults.headers.common['x-access-token'] = token
          console.log('[http] token set')
+         $http.defaults.headers.common['x-access-token'] = token
       } else {
+         console.log('[http] token unset')
          delete $http.defaults.headers.common['x-access-token']
       }
    }
@@ -44,8 +45,11 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
 
    return {
 
+      retryCount: 0,
+
       post: function (url, data, successFunc, errFunc) {
-      // post without data argument
+         var self = this
+         // post without data argument
          if (typeof data === 'function' && !successFunc && !errFunc) {
             successFunc = data
             errFunc = successFunc
@@ -56,28 +60,53 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
          $http.post(config.serverURL + url, {data: data})
          // {data: data} - always parse as json, prevent body-parser errors in node backend
             .success(function (response) {
+               self.retryCount = 0 // Reset retry count on every request, ToDo: Maybe this is a problem if you make multiple invalid requests in a row
                successFunction('POST', url, successFunc, response)
             })
             .error(function (data, status, headers, config) {
-               errorFunction(data, status, headers, config, errFunc, url)
+               if (status === 403 && self.retryCount <= 3) { // 403 is authentication problem
+                  console.log('Token expired! Try refresh')
+                  self.retryCount++ // Increment retry counter
+                  loginFactory.refreshToken().then(function () {
+                     // If verify or refresh was successfull then try again to request
+                     self.get(url, data, successFunc, errFunc)
+                  }).catch(function () {
+                     errorFunction(data, status, headers, config, errFunc, url)
+                  })
+               } else {
+                  errorFunction(data, status, headers, config, errFunc, url)
+               }
             })
       },
 
       get: function (url, data, successFunc, errFunc) {
+         var self = this
+         data = data || null
          // call without data, maximum tree arguments => skip parameter "data"
          if (typeof data === 'function') {
             if (successFunc) errFunc = successFunc
             successFunc = data
-            data = {}
+            data = null
          }
 
-         data = window.btoa(JSON.stringify(data))
-         $http.get(config.serverURL + url + '?data=' + data)
+         $http.get(config.serverURL + url + (data ? '?data=' + window.btoa(JSON.stringify(data)) : ''))
             .success(function (response) {
+               self.retryCount = 0 // Reset retry count on every request, ToDo: Maybe this is a problem if you make multiple invalid requests in a row
                successFunction('GET', url, successFunc, response)
             })
             .error(function (data, status, headers, config) {
-               errorFunction(data, status, headers, config, errFunc, url)
+               if (status === 403 && self.retryCount <= 3) { // 403 is authentication problem
+                  console.log('Token expired! Try refresh')
+                  self.retryCount++ // Increment retry counter
+                  loginFactory.refreshToken().then(function () {
+                     // If verify or refresh was successfull then try again to request
+                     self.get(url, data, successFunc, errFunc)
+                  }).catch(function () {
+                     errorFunction(data, status, headers, config, errFunc, url)
+                  })
+               } else {
+                  errorFunction(data, status, headers, config, errFunc, url)
+               }
             })
       },
 
@@ -97,6 +126,7 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
                errorFunction(data, status, headers, config, errFunc, url)
             })
       },
+
       fileSave: function (url, data, successFunc, errFunc) {
          var headers = data.headers || {}
          headers['Content-type'] = 'application/octet-stream'
@@ -115,6 +145,7 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
                errorFunction(data, status, headers, config, errFunc, url)
             })
       },
+
       fileDownload: function (url, data, successFunc, errFunc) {
          $http({
             method: 'POST',
@@ -129,6 +160,7 @@ app.factory('http', ['$http', 'config', '$rootScope', function ($http, config, $
                errorFunction(data, status, headers, config, errFunc, url)
             })
       },
+
       setHeaderToken: _setHeaderToken
    }
 }])
