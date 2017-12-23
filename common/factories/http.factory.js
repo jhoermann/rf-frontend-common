@@ -64,18 +64,17 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function (
                successFunction('POST', url, successFunc, response)
             })
             .error(function (data, status, headers, config) {
-               if (status === 403 && self.retryCount <= 3) { // 403 is authentication problem
-                  console.log('Token expired! Try refresh')
-                  self.retryCount++ // Increment retry counter
-                  loginFactory.refreshToken().then(function () {
-                     // If verify or refresh was successfull then try again to request
-                     self.get(url, data, successFunc, errFunc)
-                  }).catch(function () {
-                     errorFunction(data, status, headers, config, errFunc, url)
+               self.handleErrorResponse(data, status, headers, config)
+                  .then(function () {
+                     self.post(url, data, successFunc, errFunc)
                   })
-               } else {
-                  errorFunction(data, status, headers, config, errFunc, url)
-               }
+                  .catch(function (e) {
+                     if (e.message === 'login') {
+                        loginFactory.login()
+                     } else {
+                        errorFunction(data, status, headers, config, errFunc, url)
+                     }
+                  })
             })
       },
 
@@ -95,18 +94,17 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function (
                successFunction('GET', url, successFunc, response)
             })
             .error(function (data, status, headers, config) {
-               if (status === 403 && self.retryCount <= 3) { // 403 is authentication problem
-                  console.log('Token expired! Try refresh')
-                  self.retryCount++ // Increment retry counter
-                  loginFactory.refreshToken().then(function () {
-                     // If verify or refresh was successfull then try again to request
+               self.handleErrorResponse(data, status, headers, config)
+                  .then(function () {
                      self.get(url, data, successFunc, errFunc)
-                  }).catch(function () {
-                     errorFunction(data, status, headers, config, errFunc, url)
                   })
-               } else {
-                  errorFunction(data, status, headers, config, errFunc, url)
-               }
+                  .catch(function (e) {
+                     if (e.message === 'login') {
+                        loginFactory.login()
+                     } else {
+                        errorFunction(data, status, headers, config, errFunc, url)
+                     }
+                  })
             })
       },
 
@@ -161,6 +159,31 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function (
             })
       },
 
-      setHeaderToken: _setHeaderToken
+      setHeaderToken: _setHeaderToken,
+
+      handleErrorResponse: function (data, status, headers, config) {
+         var self = this
+         return new Promise(function (resolve, reject) {
+            if (status === 401 && $http.defaults.headers.common['x-access-token']) { // if 401 and a token was presented then its exired
+               if (self.retryCount <= 3) { // Retry refresh token
+                  console.log('Token expired! Try refresh')
+                  self.retryCount++ // Increment retry counter
+                  loginFactory.refreshToken().then(function () {
+                     // If verify or refresh was successfull then try again to request
+                     resolve()
+                  }).catch(function () {
+                     // Token could not be refreshed
+                     reject(new Error('login'))
+                  })
+               } else {
+                  // Token could not be refreshed
+                  reject(new Error('login'))
+               }
+            } else {
+               // There was an error response for the request
+               reject(new Error('error'))
+            }
+         })
+      }
    }
 }])

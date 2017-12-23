@@ -27,6 +27,8 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          // userSettings
       }
 
+      var refreshRunning = false
+
       var Services = {
 
          // login
@@ -141,15 +143,28 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       */
       function _refreshToken () {
          return $q(function (resolve, reject) {
-            postToLogin('refresh', {}, {}).then(function (res) {
-               console.log('[loginFactory] token refreshed!')
-               _setLoginData(res.token)
-               console.log(res.token)
-               resolve()
-            }, function (err) {
-               console.log('[loginFactory] ' + err)
-               reject()
-            })
+            if (!refreshRunning) { // If there is already a refresh running then wait for it
+               refreshRunning = true
+               postToLogin('refresh', {}, {}).then(function (res) {
+                  console.log('[loginFactory] Token refreshed!')
+                  _setLoginData(res.token)
+                  refreshRunning = false
+                  $rootScope.$broadcast('tokenrefreshed')
+                  resolve()
+               }, function (err) {
+                  refreshRunning = false
+                  $rootScope.$broadcast('tokenrefreshed')
+                  console.log('[loginFactory] ' + err)
+                  reject()
+               })
+            } else {
+               console.log('[loginFactory] Refresh is running ...')
+               var listener = $rootScope.$on('tokenrefreshed', function () {
+                  console.log('[loginFactory] tokenrefreshed event fired!')
+                  listener() // Unsubscribe listener
+                  resolve() // and resolve promise to re-request
+               })
+            }
          })
       }
 
