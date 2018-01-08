@@ -141,11 +141,13 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       /**
        * Retrive a new token with the old one
       */
-      function _refreshToken () {
+      function _refreshToken (sessionId) {
          return $q(function (resolve, reject) {
             if (!refreshRunning) { // If there is already a refresh running then wait for it
                refreshRunning = true
-               postToLogin('refresh', {}, {}).then(function (res) {
+               postToLogin('refresh', {
+                  sessionId: sessionId || null // optional add a sessionId to refresh to find old sessions with already refreshed tokens
+               }, {}).then(function (res) {
                   console.log('[loginFactory] Token refreshed!')
                   _setLoginData(res.token)
                   refreshRunning = false
