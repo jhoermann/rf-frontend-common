@@ -152,8 +152,8 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                   console.log('[loginFactory] Token refreshed!')
                   _setLoginData(res.token)
                   refreshRunning = false
-                  $rootScope.$broadcast('tokenrefreshed')
-                  resolve()
+                  $rootScope.$broadcast('tokenrefreshed', res.token)
+                  resolve(res.token)
                }, function (err) {
                   refreshRunning = false
                   $rootScope.$broadcast('tokenrefreshed')
@@ -162,10 +162,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                })
             } else {
                console.log('[loginFactory] Refresh is running ...')
-               var listener = $rootScope.$on('tokenrefreshed', function () {
+               var listener = $rootScope.$on('tokenrefreshed', function (token) {
                   console.log('[loginFactory] tokenrefreshed event fired!')
                   listener() // Unsubscribe listener
-                  resolve() // and resolve promise to re-request
+                  resolve(token) // and resolve promise to re-request
                })
             }
          })
