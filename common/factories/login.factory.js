@@ -146,6 +146,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             if (!refreshRunning) { // If there is already a refresh running then wait for it
                refreshRunning = true
                postToLogin('refresh', {
+                  app: config.app.name,
                   sessionId: sessionId || null // optional add a sessionId to refresh to find old sessions with already refreshed tokens
                }, {}).then(function (res) {
                   console.log('[loginFactory] Token refreshed!')
