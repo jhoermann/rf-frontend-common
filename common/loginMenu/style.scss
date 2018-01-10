@@ -20,6 +20,11 @@ rf-login-menu {
    }
 
    .dropdown {
+      p {
+         padding-left: 12.5px;
+         padding-right: 12.5px;
+         margin: 0;
+      }
       &:hover {
         .dropdown-menu, .login-menu-menu {
           display: block;

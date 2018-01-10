@@ -47,10 +47,11 @@ logout
       </a>
    </li>
    <li ng-show="loggedIn">
-      <a class="user_data">
-        {{lang.loggedInAs}}
-        {{userName}}
-      </a>
+         <p class="user_data">
+               {{lang.loggedInAs}}:
+               <br>
+               {{userName}}
+         </p>
    </li>
 </ul>
 </li>
