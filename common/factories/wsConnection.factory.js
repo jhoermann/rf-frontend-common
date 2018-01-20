@@ -1,6 +1,6 @@
 /**
  * @module wsConnectionFactory
- * @version 0.1.8
+ * @version 0.1.9
  * @desc
  * * angular factory for websocket client/server communication, asynchron request
  * * init connection
@@ -96,7 +96,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
                var messageJson = JSON.parse(message.data)
                log('receive: ', messageJson)
                if (messageJson.data &&
-                    (messageJson.data.err === 'AuthenticateFailed' ||
+                    (messageJson.err === 'AuthenticateFailed' ||
                     messageJson.err === 'AuthenticateFailed')
                ) {
                   $rootScope.$broadcast('AuthenticateFailed')
@@ -106,7 +106,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
 
                if (callbacks[messageJson.callbackId] && !messageJson.pending) {
                   // resolve corresponding callback
-                  $rootScope.$apply(callbacks[messageJson.callbackId].cb.resolve(messageJson.data))
+                  $rootScope.$apply(callbacks[messageJson.callbackId].cb.resolve(messageJson))
                   delete callbacks[messageJson.callbackId]
                } else { // peding requests or without callback => global event
                   $rootScope.$broadcast('websocketMessage', message)
