@@ -94,9 +94,19 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
          ws.onmessage = function (message) {
             try {
                var messageJson = JSON.parse(message.data);
-               log('receive: ', messageJson);
+               log('received: ', messageJson);
                if (messageJson.errsrc === 'acl') {
-                  return $rootScope.$broadcast('AuthenticateFailed');
+                  // Refresh token, then retry request
+                  console.log('Refreshing login token...');
+                  loginFactory.refreshToken().then(function () {
+                     log('Token refresh success - retrying request...');
+                     _reSendRequest(messageJson.callbackId);
+                  }).catch(function (err) {
+                     console.error('Failed to refresh token: ', err);
+                     console.warn('Will not retry request due to failed token refresh: ', messageJson);
+                     $rootScope.$broadcast('WSTokenRefreshFailed');
+                  });
+                  return;
                }
 
                if (callbacks[messageJson.callbackId] && !messageJson.pending) {
@@ -170,14 +180,33 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
             data: data
          };
 
-         // connection established?  websockt states: CONNECTING  OPEN  CLOSING  CLOSED
+         callbacks[callbackId].origRequest = request;
+         _sendOrEnqueueRequest(request);
+
+         return defer.promise;
+      }
+
+      function _sendOrEnqueueRequest (request) {
+         // connection established?  websockt states: CONNECTING  OPEN  CLOSING
+         // CLOSED
          if (ws && ws.readyState === ws.OPEN) {
             send(request);
          } else {
-            callbacks[callbackId].req = request;
+            callbacks[request.callbackId].req = request;
          }
+      }
 
-         return defer.promise;
+      /**
+       * Re-send already sent request (with known mapping), .e.g
+       */
+      function _reSendRequest (callbackId) {
+         // If request is pending already, just wait for it to be sent on reconnect.
+         if (callbacks[callbackId].req) {
+            return;
+         }
+         // Set updated token
+         callbacks[callbackId].origRequest.token = loginFactory.getToken();
+         _sendOrEnqueueRequest(callbacks[callbackId].origRequest);
       }
 
       function _reject (defer) { // called on connection errors
