@@ -15,8 +15,8 @@ app.directive('modalOpen', ['$rootScope', function ($rootScope) { // save json d
       },
       link: function ($scope, elem, attr, ctrl) {
          elem.bind('click', function () {
-            $rootScope.$broadcast('modal', attr.modalOpen, attr.modalMessage, {data: $scope.modalData})
-         })
+            $rootScope.$broadcast('modal', attr.modalOpen, attr.modalMessage, {data: $scope.modalData});
+         });
       }
-   }
-}])
+   };
+}]);
