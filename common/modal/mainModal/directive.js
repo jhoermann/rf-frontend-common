@@ -36,13 +36,13 @@ app.directive('rfModal', ['$compile', '$timeout', '$rootScope', 'langFactory', f
       templateUrl: 'global/common/modal/mainModal/main.html',
       scope: true,
       link: function ($scope, elem, attr, ctrl) {
-         $scope.visible = false // init: hide modal
+         $scope.visible = false; // init: hide modal
 
          // refesh language in scope
-         $scope.lang = langFactory.getCurrentDictionary()
+         $scope.lang = langFactory.getCurrentDictionary();
          $scope.$on('languageSet', function (meta, lang) { // reload on change
-            $scope.lang = langFactory.getCurrentDictionary()
-         })
+            $scope.lang = langFactory.getCurrentDictionary();
+         });
 
          $rootScope.$on('modal', function (event, type, message, forwardObject) {
             // use keys in forwardObject:
@@ -50,43 +50,43 @@ app.directive('rfModal', ['$compile', '$timeout', '$rootScope', 'langFactory', f
             // beforeQuit
             // afterQuit
             // console.log(forwardObject);
-            forwardObject = forwardObject || {}
-            $scope.rfModal = forwardObject
-            $scope.rfModal.type = type || 'confirm'
-            $scope.rfModal.message = langFactory.translate(message) || ''
-            $scope.rfModal.headerText = forwardObject.headerText || ''
+            forwardObject = forwardObject || {};
+            $scope.rfModal = forwardObject;
+            $scope.rfModal.type = type || 'confirm';
+            $scope.rfModal.message = langFactory.translate(message) || '';
+            $scope.rfModal.headerText = forwardObject.headerText || '';
             $scope.rfModal.quit = function (callback) {
-               callback = callback || function () {}
+               callback = callback || function () {};
                if ($scope.rfModal.beforeQuit) {
-                  $scope.rfModal.beforeQuit()
+                  $scope.rfModal.beforeQuit();
                }
                $scope.rfModal.close(function () {
-                  callback()
+                  callback();
                   if ($scope.rfModal.afterQuit) {
-                     $scope.rfModal.afterQuit()
+                     $scope.rfModal.afterQuit();
                   }
-               })
-            }
+               });
+            };
 
             $scope.rfModal.close = function (callback) {
-               callback = callback || function () {}
-               $scope.fade = false
+               callback = callback || function () {};
+               $scope.fade = false;
                $timeout(function () {
-                  $scope.visible = false
-                  callback()
-               }, 160)
-            }
+                  $scope.visible = false;
+                  callback();
+               }, 160);
+            };
 
-            var modalBody = elem.find('modal-body')
-            modalBody.html('<rf-modal-' + $scope.rfModal.type + ' lang="lang" modal="rfModal"></rf-modal-' + $scope.rfModal.type + '>')
-            $compile(elem.contents())($scope)
+            var modalBody = elem.find('modal-body');
+            modalBody.html('<rf-modal-' + $scope.rfModal.type + ' lang="lang" modal="rfModal"></rf-modal-' + $scope.rfModal.type + '>');
+            $compile(elem.contents())($scope);
 
             // show dialohttpg
-            $scope.visible = true
+            $scope.visible = true;
             $timeout(function () {
-               $scope.fade = true
-            }, 40)
-         })
+               $scope.fade = true;
+            }, 40);
+         });
       }
-   }
-}])
+   };
+}]);

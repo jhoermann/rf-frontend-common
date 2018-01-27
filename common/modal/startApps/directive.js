@@ -17,16 +17,16 @@ app.directive('rfModalStartApps', ['loginFactory', function (loginFactory) {
       },
       templateUrl: 'global/common/modal/startApps/template.html',
       link: function ($scope, element) {
-         $scope.modal.size = 'big'
+         $scope.modal.size = 'big';
 
-         var globalSettings = loginFactory.getGlobalSettings()
+         var globalSettings = loginFactory.getGlobalSettings();
          if (globalSettings) {
-            var urls = globalSettings.apps.login.urls
-            var url = urls.main + urls.startApps
-            document.getElementById('start-app-iframe').src = url
+            var urls = globalSettings.apps.login.urls;
+            var url = urls.main + urls.startApps;
+            document.getElementById('start-app-iframe').src = url;
          } else {
-            $scope.$emit('note_error', 'invalid global settings - cannot conntect to login app')
+            $scope.$emit('note_error', 'invalid global settings - cannot conntect to login app');
          }
       }
-   }
-}])
+   };
+}]);

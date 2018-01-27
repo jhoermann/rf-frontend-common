@@ -8,27 +8,27 @@ app.factory('randomFactory', [function () {
       generateId: _generateId,
       generateDrawingNumber: _generateDrawingNumber,
       generatePassword: _generatePassword
-   }
+   };
 
    function _generateId (length) {
-      length = length || 10
+      length = length || 10;
       var ID = '',
-         possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+         possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
       for (var i = 0; i < length; i++) {
-         ID += possible.charAt(Math.floor(Math.random() * possible.length))
+         ID += possible.charAt(Math.floor(Math.random() * possible.length));
       }
-      return ('_' + ID)
+      return ('_' + ID);
    }
 
    function _generateDrawingNumber () {
       var ID = '',
-         possible = '0123456789'
+         possible = '0123456789';
 
       for (var i = 0; i < 4; i++) {
-         ID += possible.charAt(Math.floor(Math.random() * possible.length))
+         ID += possible.charAt(Math.floor(Math.random() * possible.length));
       }
-      return ('RF - ' + ID)
+      return ('RF - ' + ID);
    }
 
    function _generatePassword (length) {
@@ -38,87 +38,87 @@ app.factory('randomFactory', [function () {
        * MIT Licensed
        */
 
-      var password
-      var vowel = /[aeiouAEIOU]$/
-      var consonant = /[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ1234567890_()&=?!#+]$/
+      var password;
+      var vowel = /[aeiouAEIOU]$/;
+      var consonant = /[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ1234567890_()&=?!#+]$/;
 
       function getPassword (length, memorable, pattern, prefix) {
          var char = '',
-            n, i, validChars = []
-         length = length || 10
-         memorable = memorable || true
-         pattern = pattern || /[\d\W\w]/
-         prefix = prefix || ''
+            n, i, validChars = [];
+         length = length || 10;
+         memorable = memorable || true;
+         pattern = pattern || /[\d\W\w]/;
+         prefix = prefix || '';
 
          // Non memorable passwords will pick characters from a pre-generated
          // list of characters
          if (!memorable) {
             for (i = 33; i < 126; i += 1) {
-               char = String.fromCharCode(i)
+               char = String.fromCharCode(i);
                if (char.match(pattern)) {
-                  validChars.push(char)
+                  validChars.push(char);
                }
             }
 
             if (!validChars.length) {
                throw new Error('Could not find characters that match the ' +
                   'password pattern ' + pattern + '. Patterns must match individual ' +
-                  'characters, not the password as a whole.')
+                  'characters, not the password as a whole.');
             }
          }
 
          while (prefix.length < length) {
             if (memorable) {
                if (prefix.match(consonant)) {
-                  pattern = vowel
+                  pattern = vowel;
                } else {
-                  pattern = consonant
+                  pattern = consonant;
                }
-               n = rand(33, 126)
-               char = String.fromCharCode(n)
+               n = rand(33, 126);
+               char = String.fromCharCode(n);
             } else {
-               char = validChars[rand(0, validChars.length)]
+               char = validChars[rand(0, validChars.length)];
             }
 
             if (memorable) {
-               char = char.toLowerCase()
+               char = char.toLowerCase();
             }
             if (char.match(pattern)) {
-               prefix = '' + prefix + char
+               prefix = '' + prefix + char;
             }
          }
-         return prefix
+         return prefix;
       }
 
       function rand (min, max) {
-         var key, value, arr = new Uint8Array(max)
-         getRandomValues(arr)
+         var key, value, arr = new Uint8Array(max);
+         getRandomValues(arr);
          for (key in arr) {
             if (arr.hasOwnProperty(key)) {
-               value = arr[key]
+               value = arr[key];
                if (value > min && value < max) {
-                  return value
+                  return value;
                }
             }
          }
-         return rand(min, max)
+         return rand(min, max);
       }
 
       function getRandomValues (buf) {
          if (window.crypto && window.crypto.getRandomValues) {
-            window.crypto.getRandomValues(buf)
+            window.crypto.getRandomValues(buf);
          } else if (typeof window.msCrypto === 'object' && typeof window.msCrypto.getRandomValues === 'function') {
-            window.msCrypto.getRandomValues(buf)
+            window.msCrypto.getRandomValues(buf);
          } else if (module.exports === password && typeof require !== 'undefined') {
-            var bytes = require('crypto').randomBytes(buf.length)
-            buf.set(bytes)
+            var bytes = require('crypto').randomBytes(buf.length);
+            buf.set(bytes);
          } else {
-            throw new Error('No secure random number generator available.')
+            throw new Error('No secure random number generator available.');
          }
       }
 
-      return getPassword(length)
+      return getPassword(length);
    }
 
-   return Services
-}])
+   return Services;
+}]);
