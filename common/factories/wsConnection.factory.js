@@ -99,8 +99,11 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
                   // Refresh token, then retry request
                   console.log('Refreshing login token...');
                   loginFactory.refreshToken().then(function () {
-                     log('Token refresh success - retrying request...');
-                     _reSendRequest(messageJson.callbackId);
+                     if (_reSendRequest(messageJson.callbackId)) {
+                        log('Token refresh success - retrying request...');
+                     } else {
+                        console.warn('Request retries exceeded: ', messageJson);
+                     }
                   }).catch(function (err) {
                      console.error('Failed to refresh token: ', err);
                      console.warn('Will not retry request due to failed token refresh: ', messageJson);
@@ -181,6 +184,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
          };
 
          callbacks[callbackId].origRequest = request;
+         callbacks[callbackId].retriesLeft = 3;
          _sendOrEnqueueRequest(request);
 
          return defer.promise;
@@ -197,16 +201,23 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
       }
 
       /**
-       * Re-send already sent request (with known mapping), .e.g
+       * Re-send already sent request (with known mapping)
+       * return true if sent, false if retries exceeded
        */
       function _reSendRequest (callbackId) {
          // If request is pending already, just wait for it to be sent on reconnect.
          if (callbacks[callbackId].req) {
             return;
          }
+         // Check if there is any retry left
+         if (callbacks[callbackId].retriesLeft <= 0) {
+            return false;
+         }
+         callbacks[callbackId].retriesLeft--;
          // Set updated token
          callbacks[callbackId].origRequest.token = loginFactory.getToken();
          _sendOrEnqueueRequest(callbacks[callbackId].origRequest);
+         return true;
       }
 
       function _reject (defer) { // called on connection errors
