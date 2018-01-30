@@ -10,7 +10,7 @@
 
 app.factory('langFactory', ['$http', '$q', '$rootScope', 'config', function ($http, $q, $rootScope, config) {
    var dictionary = {},
-      defaultLanguage = 'en'
+      defaultLanguage = 'en';
 
    var Services = {
 
@@ -30,73 +30,73 @@ app.factory('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
       setLanguage: _setLanguage, // setLanguage("de")
 
       extendLang: _extendLang
-   }
+   };
 
    function _translate (key, lang) {
-      lang = lang || Services.currentLang
+      lang = lang || Services.currentLang;
       if (dictionary[lang]) { // tranlation available => look for key
          if (dictionary[lang][key]) { // tranlation available => return it
-            return dictionary[lang][key]
+            return dictionary[lang][key];
          } else {
-            console.log("error: lang key '" + key + "' does not exist")
-            return key // still return the key => better than nothing
+            console.log("error: lang key '" + key + "' does not exist");
+            return key; // still return the key => better than nothing
          }
       } else {
-         console.log("error: translation for lang.'" + lang + "' was not fetched yet")
-         return key // still return the key => better than nothing
+         console.log("error: translation for lang.'" + lang + "' was not fetched yet");
+         return key; // still return the key => better than nothing
       }
    }
 
 
    function _getDictionary (lang) {
       if (dictionary[lang]) {
-         return dictionary[lang]
+         return dictionary[lang];
       } else {
-         _fetch(lang)
+         _fetch(lang);
       }
    }
 
    function _getCurrentDictionary () {
-      return dictionary[Services.currentLang]
+      return dictionary[Services.currentLang];
    }
 
    function _setLanguage (lang) {
       if (dictionary[lang]) { // data already fetched => take it
-         setLang(lang)
+         setLang(lang);
       } else {
          if (Services.supportedLang.indexOf(lang) !== -1) {
             // console.log("no data for " + lang + " in factory  =>  fetch from server");
             _fetch(lang,
                function (lang) { // then
-                  setLang(lang)
-               })
+                  setLang(lang);
+               });
          } else {
-            var guessedLang = _getFirstBrowserLanguage() // from browser or default
-            console.log('error language ' + lang + ' not supported, try to guess language: ', guessedLang)
-            setLang(guessedLang)
+            var guessedLang = _getFirstBrowserLanguage(); // from browser or default
+            console.log('error language ' + lang + ' not supported, try to guess language: ', guessedLang);
+            setLang(guessedLang);
          }
       }
 
       function setLang (lang) {
-         Services.currentLang = lang
-         Services.languageSet = true
-         $rootScope.$broadcast('languageSet', lang)
+         Services.currentLang = lang;
+         Services.languageSet = true;
+         $rootScope.$broadcast('languageSet', lang);
       }
    }
 
    function _extendLang (translations) {
-      var lang = Services.currentLang
+      var lang = Services.currentLang;
 
       if (!translations[lang]) {
-         lang = 'en'
-         console.log("langFactory:extendLang: Current Language not found in overgiven translations. Trying default 'en'.")
+         lang = 'en';
+         console.log("langFactory:extendLang: Current Language not found in overgiven translations. Trying default 'en'.");
          if (!translations.en) {
-            console.log("langFactory:extendLang: Lang 'en' not found, returning.")
-            return
+            console.log("langFactory:extendLang: Lang 'en' not found, returning.");
+            return;
          }
       }
 
-      _merge(dictionary[Services.currentLang], translations[lang])
+      _merge(dictionary[Services.currentLang], translations[lang]);
    }
 
 
@@ -105,13 +105,13 @@ app.factory('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
 
    function _merge (obj1, obj2) { // merge obj2 into obj1
       for (var attr in obj2) {
-         obj1[attr] = obj2[attr]
+         obj1[attr] = obj2[attr];
       }
-      return obj1
+      return obj1;
    }
 
 
-   var retryCount = 0
+   var retryCount = 0;
    function _fetch (lang, func) {
       $http.get('json/lang/' + lang + '.json').then(function (response) {
          if (typeof response.data === 'object') { // successfull fetch
@@ -119,30 +119,30 @@ app.factory('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
 
             // TODO: exted original json with additional languale jsons dynamic
 
-            var dict
+            var dict;
             if (config.translations) {
-               dict = _merge(response.data, config.translations[lang])
+               dict = _merge(response.data, config.translations[lang]);
             } else {
-               dict = response.data
+               dict = response.data;
             }
 
             // store the data local in factory
-            dictionary[lang] = dict
+            dictionary[lang] = dict;
             if (func) {
-               func(lang)
+               func(lang);
             }
-            $rootScope.$broadcast('languageFetched', lang)
+            $rootScope.$broadcast('languageFetched', lang);
          } else { // invalid response data: something went wrong
-            retry(lang)
+            retry(lang);
          }
       }, function () { // invalid http answer: something went wrong
-         retry(lang)
-      })
+         retry(lang);
+      });
 
       function retry (lang) {
-         retryCount++
+         retryCount++;
          if (retryCount < 2) {
-            _fetch(lang) // retry
+            _fetch(lang); // retry
          }
       }
    }
@@ -152,42 +152,42 @@ app.factory('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
          browserLanguagePropertyKeys = ['language', 'browserLanguage', 'systemLanguage', 'userLanguage'],
          i,
          language = defaultLanguage,
-         match = Services.supportedLanguages
+         match = Services.supportedLanguages;
 
       // HTML 5.1 "navigator.languages"
       if (Array.isArray(nav.languages)) {
          for (i = 0; i < nav.languages.length; i++) {
-            language = convertLang(nav.languages[i])
+            language = convertLang(nav.languages[i]);
             if (language && language.length && (!match || match.indexOf(language) !== -1)) {
-               break
+               break;
             }
          }
       } else {
          // other well known properties in browsers
          for (i = 0; i < browserLanguagePropertyKeys.length; i++) {
-            language = convertLang(nav[browserLanguagePropertyKeys[i]])
+            language = convertLang(nav[browserLanguagePropertyKeys[i]]);
             if (language && language.length && (!match || match.indexOf(language) !== -1)) {
-               break
+               break;
             }
          }
       }
 
       // prevent other languages, when no match
       if (match && match.indexOf(language) === -1) {
-         console.log('language')
-         language = match[0]
+         console.log('language');
+         language = match[0];
       }
 
       function convertLang (lang) {
          if (lang.indexOf('-') !== -1) {
-            lang = lang.split('-')[0]
+            lang = lang.split('-')[0];
          }
-         return lang.toLowerCase()
+         return lang.toLowerCase();
       }
 
-      return language
+      return language;
    }
 
 
-   return Services
-}])
+   return Services;
+}]);
