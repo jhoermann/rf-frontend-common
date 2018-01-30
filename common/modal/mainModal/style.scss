@@ -14,7 +14,7 @@ rf-modal {
       width: 40%;
       left: 35%;
       // deactive default rf-box shadow
-      // => is done separate in header/container
+      // => is done separate in header/modal-container
       // reason: rf box height is bigger, thant content
       -webkit-box-shadow: none;
       -moz-box-shadow: none;
@@ -54,7 +54,7 @@ rf-modal {
          left: 0;
          height: 100%;
 
-         .container {
+         .modal-container {
             top: 0;
          }
       }
@@ -75,7 +75,7 @@ rf-modal {
       }
    }
 
-   .container {
+   .modal-container {
       overflow-y: auto;
       width: 100%;
       margin: 0;
