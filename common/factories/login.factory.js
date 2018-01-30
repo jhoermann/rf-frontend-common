@@ -178,7 +178,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       function _setLoginData (token) {
          var payload = token.split('.')[1],
             payloadBase64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-         loginData = JSON.parse(decodeURIComponent(escape(window.atob(payloadBase64))))
+         loginData = JSON.parse(decodeURIComponent(escape(window.atob(payloadBase64))));
          console.log('loginData: ', loginData);
          $rootScope.$broadcast('loggedIn', loginData.token);
       }
