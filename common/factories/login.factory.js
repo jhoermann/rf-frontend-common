@@ -179,7 +179,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          var payload = token.split('.')[1],
             payloadBase64 = payload.replace(/-/g, '+').replace(/_/g, '/');
          loginData = JSON.parse(window.atob(payloadBase64));
-         console.log('TOKEN: ' + loginData.token);
+         console.log('loginData: ', loginData);
          $rootScope.$broadcast('loggedIn', loginData.token);
       }
 
