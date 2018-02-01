@@ -60,7 +60,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
          // settings
          getGlobalSettings: function () { return loginData.globalSettings; },
-         getAppSettings: function () { return loginData.appSettings; },
+         getAppSettings: function () {
+            // If config.app.name settings not set return the whole appSettings for backwards compatibility
+            return (loginData.appSettings.hasOwnProperty(config.app.name) ? loginData.appSettings[config.app.name] : loginData.appSettings);
+         },
          getUserSettings: function () { return loginData.userSettings; },
 
          setAppSettings: _setAppSettings,
