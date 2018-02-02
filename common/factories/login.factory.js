@@ -43,9 +43,14 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          initAndRefreshOnLogin: _initAndRefreshOnLogin,
 
          // account data
-         getUserName: function () { return _getAccountData('email'); },
-         getUserId: function () { return _getAccountData('_id'); },
+         getUserName: function () {
+            return _getAccountData('email');
+         },
+         getUserId: function () {
+            return _getAccountData('_id');
+         },
 
+         getSession: _getSession,
          getToken: _getToken,
          verifyToken: _verifyToken,
          refreshToken: _refreshToken,
@@ -54,17 +59,31 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          hasRight: _hasRight,
          hasAppRight: _hasAppRight,
 
-         hasGroup: function (group) { return loginData.groups.indexOf(group) !== -1; },
-         hasUserGroup: function (userGroup) { return loginData.userGroups.indexOf(userGroup) !== -1; },
-         isLoginAdmin: function () { return loginData.isLoginAdmin || false; },
+         hasGroup: function (group) {
+            return loginData.groups.indexOf(group) !== -1;
+         },
+         hasUserGroup: function (userGroup) {
+            return loginData.userGroups.indexOf(userGroup) !== -1;
+         },
+         isLoginAdmin: function () {
+            return loginData.isLoginAdmin || false;
+         },
 
          // settings
-         getGlobalSettings: function () { return loginData.globalSettings; },
-         getAppSettings: function () {
-            // If config.app.name settings not set return the whole appSettings for backwards compatibility
-            return (loginData.appSettings.hasOwnProperty(config.app.name) ? loginData.appSettings[config.app.name] : loginData.appSettings);
+         getGlobalSettings: function () {
+            return loginData.globalSettings;
          },
-         getUserSettings: function () { return loginData.userSettings; },
+         getAppSettings: function () {
+            // If config.app.name settings not set return the whole appSettings
+            // for backwards compatibility
+            return (
+               loginData.appSettings.hasOwnProperty(config.app.name)
+                  ? loginData.appSettings[config.app.name]
+                  : loginData.appSettings);
+         },
+         getUserSettings: function () {
+            return loginData.userSettings;
+         },
 
          setAppSettings: _setAppSettings,
          setUserSettings: _setUserSettings
@@ -122,6 +141,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          return loginData.token;
       }
 
+      function _getSession () {
+         return loginData.session;
+      }
+
       function _getUserData () {
          return loginData.user;
       }
@@ -145,6 +168,8 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
        * Retrive a new token with the old one
       */
       function _refreshToken (sessionId) {
+         sessionId = sessionId || getSession();
+
          return $q(function (resolve, reject) {
             if (!refreshRunning) { // If there is already a refresh running then wait for it
                refreshRunning = true;
