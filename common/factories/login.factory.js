@@ -244,8 +244,9 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _getAppUrls (app) {
          var urls = {};
-         if (loginData.globalSettings && loginData.globalSettings[app] && loginData.globalSettings[app].urls) {
-            urls = loginData.globalSettings[app].urls;
+         if (loginData.globalSettings && loginData.globalSettings.apps &&
+            loginData.globalSettings.apps[app] && loginData.globalSettings.apps[app].urls) {
+            urls = loginData.globalSettings.apps[app].urls;
          }
          return urls;
       }
