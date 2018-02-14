@@ -55,9 +55,9 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          verifyToken: _verifyToken,
          refreshToken: _refreshToken,
 
-         // rights & groups
-         hasRight: _hasRight,
-         hasAppRight: _hasAppRight,
+         // rights
+         hasRight: _hasRight, // hasApp('accounting', "write")
+         hasAppRight: _hasAppRight, // hasAppRight('rf-app-cad', 'drawings', "write")
 
          hasGroup: function (group) {
             return loginData.groups.indexOf(group) !== -1;
@@ -73,6 +73,11 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          getGlobalSettings: function () {
             return loginData.globalSettings;
          },
+
+         // global  app settings
+         hasApp: _hasApp, // hasApp('rf-app-login')
+         getAppUrls: _getAppUrls, // getAppUrls('rf-app-login')
+
          getAppSettings: function () {
             // If config.app.name settings not set return the whole appSettings
             // for backwards compatibility
@@ -231,6 +236,18 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _hasRight (section, access) {
          return _hasAppRight(config.app.name, section, access);
+      }
+
+      function _hasApp (app) {
+         return (loginData.rights && loginData.rights[app]);
+      }
+
+      function _getAppUrls (app) {
+         var urls = {};
+         if (loginData.globalSettings && loginData.globalSettings[app] && loginData.globalSettings[app].urls) {
+            urls = loginData.globalSettings[app].urls;
+         }
+         return urls;
       }
 
       /**
