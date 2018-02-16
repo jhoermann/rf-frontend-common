@@ -1,0 +1,34 @@
+<h3>{{modal.message}}</h3>
+<br>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="alert alert-danger">
+      Warning: These steps will permanently delete the repository <strong>{{ param }}</strong>, wiki, issues, and comments. This action cannot be undone.
+    </div>
+  </div>
+  <div class="col-xs-12">
+    <form>
+      <div class="form-group">
+        <label>Name eingeben:</label>
+        <input type="text" class="form-control" ng-model="paramInput">
+      </div>
+    </form>
+
+
+  </div>
+
+    <div class="col-xs-6" ng-init="isDisabled=true">
+      <!-- deactivate until param confirmed -->
+      <div ng-if="param !== paramInput">
+        <button class="rf-btn rf-btn-red rf-btn-background col-xs-12" ng-disabled="isDisabled" ng-class="{'rf-btn-disabled': isDisabled}">{{lang.yes}}</button>
+      </div>
+      <div ng-show="param === paramInput">
+        <button class="rf-btn rf-btn-red rf-btn-background col-xs-12" ng-click="modal.quit(modal.onSuccess);">{{lang.yes}}</button>
+      </div>
+
+    </div>
+    <div class="col-xs-6">
+        <button class="rf-btn rf-btn-background col-xs-12" ng-click="modal.quit(modal.onFailure);">{{lang.no}}</button>
+    </div>
+</div>
