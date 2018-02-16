@@ -4,18 +4,16 @@
 <div class="row">
   <div class="col-xs-12">
     <div class="alert alert-danger">
-      Warning: These steps will permanently delete the repository <strong>{{ param }}</strong>, wiki, issues, and comments. This action cannot be undone.
+      {{lang.cantBeUndone}}
     </div>
   </div>
   <div class="col-xs-12">
     <form>
       <div class="form-group">
-        <label>Name eingeben:</label>
+        <label>{{lang.toConfirm}} <em>{{ param }}</em> {{lang.toConfirmField}}</label>
         <input type="text" class="form-control" ng-model="paramInput">
       </div>
     </form>
-
-
   </div>
 
     <div class="col-xs-6" ng-init="isDisabled=true">
