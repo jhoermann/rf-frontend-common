@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.8
+ * @version 0.0.9
  */
 
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q', 'tokenFactory',
@@ -44,10 +44,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
          // account data
          getUserName: function () {
-            return _getAccountData('email');
+            return _getUserAttribute('email');
          },
          getUserId: function () {
-            return _getAccountData('_id');
+            return _getUserAttribute('_id');
          },
 
          getSession: _getSession,
@@ -221,7 +221,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          $rootScope.$broadcast('loggedOut');
       }
 
-      function _getAccountData (attribute) {
+      function _getUserAttribute (attribute) {
          return (loginData.user && loginData.user[attribute]) ? loginData.user[attribute] : '';
       }
 
