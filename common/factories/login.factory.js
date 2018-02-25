@@ -115,6 +115,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
        * Redirect user to logout page
       */
       function _logout () { // Send logout to server and remove session from db
+         loginData = {};
          tokenFactory.logout();
       }
 
