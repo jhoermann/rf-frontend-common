@@ -1,4 +1,4 @@
-app.directive('rfModalConfirm', [function () {
+app.directive('rfModalConfirmInput', [function () {
    return {
       restrict: 'E',
       templateUrl: 'global/common/modal/confirm/template.html',
