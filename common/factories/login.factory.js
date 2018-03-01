@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.10
+ * @version 0.0.9
  */
 
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q', 'tokenFactory',
@@ -81,16 +81,14 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          getAppSettings: function () {
             // If config.app.name settings not set return the whole appSettings
             // for backwards compatibility
-
-            if (!loginData.appSettings) return {};
-
+            var appSettings = loginData.appSettings || {};
             return (
-               loginData.appSettings.hasOwnProperty(config.app.name)
-                  ? loginData.appSettings[config.app.name]
-                  : loginData.appSettings);
+               appSettings.hasOwnProperty(config.app.name)
+                  ? appSettings[config.app.name]
+                  : appSettings);
          },
          getUserSettings: function () {
-            return loginData.userSettings || {};
+            return loginData.userSettings;
          },
 
          setAppSettings: _setAppSettings,
