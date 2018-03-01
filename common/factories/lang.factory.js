@@ -84,20 +84,24 @@ app.factory('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
       }
    }
 
-   function _extendLang (translations) {
-      var lang = Services.currentLang;
+   // merge a tranlation object into current dictionary
+   function _extendLang (translations) { // translations: {"de": {...}, "en": {...}}
 
-      if (!translations[lang]) {
-         lang = 'en';
-         console.log("langFactory:extendLang: Current Language not found in overgiven translations. Trying default 'en'.");
-         if (!translations.en) {
-            console.log("langFactory:extendLang: Lang 'en' not found, returning.");
-            return;
+      // go through all translation languages
+      for (var tanslationLang in translations) {
+         // merge supported languages
+         if (Services.supportedLang.indexOf(tanslationLang) !== -1) {
+            if (dictionary[tanslationLang]) {
+               _merge(dictionary[tanslationLang], translations[tanslationLang]);
+               // console.log("merged lang " + tanslationLang)
+            } // else: this language might not yet be fetched
+         } else {
+            console.log("[langFactory]:could not extend Lang '" + tanslationLang + "' because it is not supported, supported are: ", Services.supportedLang);
          }
       }
-
-      _merge(dictionary[Services.currentLang], translations[lang]);
+      // console.log("dictionary after _extendLang ", dictionary)
    }
+
 
 
    /* -------------------- helper functions ---------------------------- */
