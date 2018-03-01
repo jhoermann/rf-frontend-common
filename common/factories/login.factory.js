@@ -191,7 +191,12 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                }, function (err) {
                   refreshRunning = false;
                   $rootScope.$broadcast('tokenrefreshed');
-                  console.log('[loginFactory] ' + err);
+                  console.log('[loginFactory] Token refresh failed: ' + err);
+                  // Break infinite login loop
+                  if (('' + err).indexOf('No session ID') !== -1) {
+                     // Token set but no session
+                     _clearLoginData();
+                  }
                   reject();
                });
             } else {
