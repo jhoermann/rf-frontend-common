@@ -197,6 +197,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                   if (('' + err).indexOf('No session ID') !== -1) {
                      // Token set but no session
                      _clearLoginData();
+                     _redirectWithoutToken();
                   }
                   reject();
                });
