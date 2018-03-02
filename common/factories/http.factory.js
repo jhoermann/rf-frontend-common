@@ -16,7 +16,7 @@ function getQueryParameterByName (name, url) {
 }
 
 
-app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function ($http, config, $rootScope, loginFactory) {
+app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', function ($http, config, $rootScope, loginFactory, $q) {
    var debugMode = false;
 
    function errorFunction (data, status, headers, conf, errFunc, url) {
@@ -185,7 +185,7 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function (
 
       handleErrorResponse: function (data, status, headers, config) {
          var self = this;
-         return new Promise(function (resolve, reject) {
+         return $q(function (resolve, reject) {
             if (status === 401 && $http.defaults.headers.common['x-access-token']) { // if 401 and a token was presented then its exired
                if (self.retryCount <= 3) { // Retry refresh token
                   console.log('Token expired! Try refresh');
