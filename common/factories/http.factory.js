@@ -150,7 +150,7 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', func
       fileSave: function (url, data, successFunc, errFunc) {
          var headers = data.headers || {};
          headers['Content-type'] = 'application/octet-stream';
-         headers.preview = (data.mimeType === 'application/pdf') ? 'true' : 'false';
+         headers.preview = (data.mimetype === 'application/pdf') ? 'true' : 'false';
          $http({
             method: 'POST',
             url: config.serverURL + url,
