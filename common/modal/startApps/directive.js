@@ -19,9 +19,8 @@ app.directive('rfModalStartApps', ['loginFactory', function (loginFactory) {
       link: function ($scope, element) {
          $scope.modal.size = 'big';
 
-         var globalSettings = loginFactory.getGlobalSettings();
-         if (globalSettings) {
-            var urls = globalSettings.apps.login.urls;
+         var urls = loginFactory.getAppUrls('rf-app-login');
+         if (urls.main && urls.startApps) {
             var url = urls.main + urls.startApps;
             document.getElementById('start-app-iframe').src = url;
          } else {

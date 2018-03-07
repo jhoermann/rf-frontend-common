@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.8
+ * @version 0.0.9
  */
 
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q', 'tokenFactory',
@@ -44,10 +44,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
          // account data
          getUserName: function () {
-            return _getAccountData('email');
+            return _getUserAttribute('email');
          },
          getUserId: function () {
-            return _getAccountData('_id');
+            return _getUserAttribute('_id');
          },
 
          getSession: _getSession,
@@ -55,9 +55,9 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          verifyToken: _verifyToken,
          refreshToken: _refreshToken,
 
-         // rights & groups
-         hasRight: _hasRight,
-         hasAppRight: _hasAppRight,
+         // rights
+         hasRight: _hasRight, // hasApp('accounting', "write")
+         hasAppRight: _hasAppRight, // hasAppRight('rf-app-cad', 'drawings', "write")
 
          hasGroup: function (group) {
             return loginData.groups.indexOf(group) !== -1;
@@ -71,15 +71,21 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
          // settings
          getGlobalSettings: function () {
-            return loginData.globalSettings;
+            return loginData.globalSettings || {};
          },
+
+         // global  app settings
+         hasApp: _hasApp, // hasApp('rf-app-login')
+         getAppUrls: _getAppUrls, // getAppUrls('rf-app-login')
+
          getAppSettings: function () {
             // If config.app.name settings not set return the whole appSettings
             // for backwards compatibility
+            var appSettings = loginData.appSettings || {};
             return (
-               loginData.appSettings.hasOwnProperty(config.app.name)
-                  ? loginData.appSettings[config.app.name]
-                  : loginData.appSettings);
+               appSettings.hasOwnProperty(config.app.name)
+                  ? appSettings[config.app.name]
+                  : appSettings);
          },
          getUserSettings: function () {
             return loginData.userSettings;
@@ -110,6 +116,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
        * Redirect user to logout page
       */
       function _logout () { // Send logout to server and remove session from db
+         loginData = {};
          tokenFactory.logout();
       }
 
@@ -146,7 +153,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       }
 
       function _getUserData () {
-         return loginData.user;
+         return loginData.user || {};
       }
 
       /**
@@ -185,7 +192,13 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                }, function (err) {
                   refreshRunning = false;
                   $rootScope.$broadcast('tokenrefreshed');
-                  console.log('[loginFactory] ' + err);
+                  console.log('[loginFactory] Token refresh failed: ' + err);
+                  // Break infinite login loop
+                  if (('' + err).indexOf('No session ID') !== -1) {
+                     // Token set but no session
+                     _clearLoginData();
+                     _redirectWithoutToken();
+                  }
                   reject();
                });
             } else {
@@ -216,7 +229,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          $rootScope.$broadcast('loggedOut');
       }
 
-      function _getAccountData (attribute) {
+      function _getUserAttribute (attribute) {
          return (loginData.user && loginData.user[attribute]) ? loginData.user[attribute] : '';
       }
 
@@ -231,6 +244,19 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _hasRight (section, access) {
          return _hasAppRight(config.app.name, section, access);
+      }
+
+      function _hasApp (app) {
+         return (loginData.rights && loginData.rights[app]);
+      }
+
+      function _getAppUrls (app) {
+         var urls = {};
+         if (loginData.globalSettings && loginData.globalSettings.apps &&
+            loginData.globalSettings.apps[app] && loginData.globalSettings.apps[app].urls) {
+            urls = loginData.globalSettings.apps[app].urls;
+         }
+         return urls;
       }
 
       /**

@@ -3,6 +3,7 @@
   margin-bottom: 5px;
   position: relative;
   border-bottom: 1px solid #ddd;
+  overflow: auto;
 
   input,
   select,
@@ -34,7 +35,11 @@
     right: 2px;
     top: 7px;
     font-size: 85%;
+    &.disabled { // user cannot edit this field => hide pencil
+     display: none;
+    }
   }
+
 
   &.rf-label {
     label {

@@ -4,7 +4,19 @@
  * @version 0.1.2
  */
 
-app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function ($http, config, $rootScope, loginFactory) {
+// Source: https://stackoverflow.com/a/901144/2597135
+function getQueryParameterByName (name, url) {
+   if (!url) url = window.location.href;
+   name = name.replace(/[[\]]/g, '\\$&');
+   var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+   if (!results) return null;
+   if (!results[2]) return '';
+   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+
+app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', function ($http, config, $rootScope, loginFactory, $q) {
    var debugMode = false;
 
    function errorFunction (data, status, headers, conf, errFunc, url) {
@@ -80,6 +92,7 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function (
 
       get: function (url, data, successFunc, errFunc) {
          var self = this;
+
          data = data || null;
          // call without data, maximum tree arguments => skip parameter "data"
          if (typeof data === 'function') {
@@ -88,7 +101,16 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function (
             data = null;
          }
 
-         $http.get(config.serverURL + url + (data ? '?data=' + window.btoa(JSON.stringify(data)) : ''))
+         var dataQueryPart = (data ? '?data=' + window.btoa(JSON.stringify(data)) : '');
+         // Internal / magic token processor
+         // Used for internal requests
+         var internalToken = getQueryParameterByName('internal');
+         var internalQueryPart = '';
+         if (internalToken) {
+            internalQueryPart = (dataQueryPart ? '&' : '?') + 'internal=' + internalToken;
+         }
+
+         $http.get(config.serverURL + url + dataQueryPart + internalQueryPart)
             .success(function (response) {
                self.retryCount = 0; // Reset retry count on every request, ToDo: Maybe this is a problem if you make multiple invalid requests in a row
                successFunction('GET', url, successFunc, response);
@@ -128,7 +150,7 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function (
       fileSave: function (url, data, successFunc, errFunc) {
          var headers = data.headers || {};
          headers['Content-type'] = 'application/octet-stream';
-         headers.preview = (data.mimeType === 'application/pdf') ? 'true' : 'false';
+         headers.preview = (data.mimetype === 'application/pdf') ? 'true' : 'false';
          $http({
             method: 'POST',
             url: config.serverURL + url,
@@ -163,7 +185,7 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', function (
 
       handleErrorResponse: function (data, status, headers, config) {
          var self = this;
-         return new Promise(function (resolve, reject) {
+         return $q(function (resolve, reject) {
             if (status === 401 && $http.defaults.headers.common['x-access-token']) { // if 401 and a token was presented then its exired
                if (self.retryCount <= 3) { // Retry refresh token
                   console.log('Token expired! Try refresh');

@@ -1,35 +1,35 @@
+.rf-box {
+   @include box-shadow(0px, 0px, 5px, 1px, rgba(0,0,0,0.75));
+   margin-bottom: 30px;
 
-  .rf-box {
-    @include box-shadow(0px, 0px, 5px, 1px, rgba(0,0,0,0.75));
-    margin-bottom: 5px;
+   .content {
+      padding: 10px;
+   }
 
-    .content,
-    .header {
+   .header {
       padding: 5px;
-    }
-    .header {
       height: 30px;
       background: #000;
       color: #fff;
       overflow: hidden;
+
       a {
-        span {
-          color: $orange;
-        }
-        i.fa{
-           cursor: pointer;
-        }
+         span {
+            color: $orange;
+         }
+
+         i.fa {
+            cursor: pointer;
+         }
       }
+
       .actions {
-        text-align: right;
+         text-align: right;
 
-        button {
-          padding: 0 5px;
-          margin: 0;
-        }
+         button {
+            padding: 0 5px;
+            margin: 0;
+         }
       }
-
-
-
-    }
-  }
+   }
+}
