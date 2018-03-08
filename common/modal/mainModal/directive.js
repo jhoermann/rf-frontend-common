@@ -2,7 +2,7 @@
  * @desc Gloabal dialog box. Can be triggered from anywhere by event.
  * manages animated box and quit function
  *
- * @version 0.1.1
+ * @version 0.1.2
  *
  * place this in the index html:
  * <rf-modal></rf-modal>
@@ -66,6 +66,13 @@ app.directive('rfModal', ['$compile', '$timeout', '$rootScope', 'langFactory', f
                      $scope.rfModal.afterQuit();
                   }
                });
+            };
+
+            // press "ESC" to close modal
+            document.onkeydown = function (event) {
+               if (event.which === 27) {
+                  $scope.rfModal.close();
+               }
             };
 
             $scope.rfModal.close = function (callback) {
