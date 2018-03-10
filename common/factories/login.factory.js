@@ -167,8 +167,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
        * Retrive a new token with the old one
       */
       function _refreshToken (sessionId) {
-         sessionId = sessionId || _getSession();
-
          return $q(function (resolve, reject) {
             if (!refreshRunning) { // If there is already a refresh running then wait for it
                refreshRunning = true;
