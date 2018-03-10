@@ -16,7 +16,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          /* ---- from session db ---- */
          // token
          // userAccount
-         // groups
          // userGroups
          // rights
          // isloginAdmin => only for loginMenu
@@ -59,9 +58,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          hasRight: _hasRight, // hasApp('accounting', "write")
          hasAppRight: _hasAppRight, // hasAppRight('rf-app-cad', 'drawings', "write")
 
-         hasGroup: function (group) {
-            return loginData.groups.indexOf(group) !== -1;
-         },
          hasUserGroup: function (userGroup) {
             return loginData.userGroups.indexOf(userGroup) !== -1;
          },
