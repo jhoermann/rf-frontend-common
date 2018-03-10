@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.9
+ * @version 0.0.10
  */
 
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q', 'tokenFactory',
@@ -49,7 +49,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             return _getUserAttribute('_id');
          },
 
-         getSession: _getSession,
          getToken: _getToken,
          verifyToken: _verifyToken,
          refreshToken: _refreshToken,
@@ -144,9 +143,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          return loginData.token;
       }
 
-      function _getSession () {
-         return loginData.session;
-      }
 
       function _getUserData () {
          return loginData.user || {};
