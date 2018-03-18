@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.10
+ * @version 0.0.11
  */
 
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q', 'tokenFactory',
@@ -157,7 +157,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                console.log('[loginFactory] token verified!');
                resolve();
             }, function (err) {
-               console.log('[loginFactory] ' + err);
+               console.log('[loginFactory] ', err);
                reject();
             });
          });
@@ -182,7 +182,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                }, function (err) {
                   refreshRunning = false;
                   $rootScope.$broadcast('tokenrefreshed');
-                  console.log('[loginFactory] Token refresh failed: ' + err);
+                  console.log('[loginFactory] Token refresh failed: ', err);
                   // Break infinite login loop
                   if (('' + err).indexOf('No session ID') !== -1) {
                      // Token set but no session
