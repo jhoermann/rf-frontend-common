@@ -101,7 +101,7 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', func
             data = null;
          }
 
-         var dataQueryPart = (data ? '?data=' + JSON.stringify(data) : '');
+         var dataQueryPart = (data ? '?data=' + encodeURIComponent(JSON.stringify(data)) : '');
          // Internal / magic token processor
          // Used for internal requests
          var internalToken = getQueryParameterByName('internal');
