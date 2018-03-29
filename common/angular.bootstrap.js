@@ -27,26 +27,27 @@ function startApp () {
          for (var key in response) {
             baseConfig[key] = response[key];
          }
-         bootstrapApplication(baseConfig);
+         rfTokenFactory.setConfig(baseConfig);
+
+         if (rfTokenFactory.hasToken() || rfTokenFactory.isInternal() || rfTokenFactory.isLoginApp()) {
+            bootstrapApplication(baseConfig);
+            return;
+         }
+
+         rfTokenFactory.login();
       })
-      .error(function (err) { // could not post, rf-acl not present => still bootstrap the app
+      // could not post, rf-acl not present => bootstrap without login
+      .error(function (err) {
          console.log(err);
          bootstrapApplication(baseConfig);
       });
 
 
    function bootstrapApplication (baseConfig) {
-      rfTokenFactory.setConfig(baseConfig);
-
-      if (rfTokenFactory.hasToken() || rfTokenFactory.isInternal() || rfTokenFactory.isLoginApp()) {
-         app.constant('config', baseConfig);
-         angular.element(document).ready(function () {
-            angular.bootstrap(document, ['app']);
-         });
-         return;
-      }
-
-      rfTokenFactory.login();
+      app.constant('config', baseConfig);
+      angular.element(document).ready(function () {
+         angular.bootstrap(document, ['app']);
+      });
    }
 }
 
