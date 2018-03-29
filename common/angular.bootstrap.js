@@ -2,7 +2,7 @@
  * @desc bootstrap angular application
  * do not use in html: ng-app="app" (this would also bootstrap the app)
  *
- * @version 0.0.4
+ * @version 0.0.5
  *
  *
  */
@@ -37,7 +37,7 @@ function startApp () {
 
 
    function bootstrapApplication (baseConfig) {
-      tokenFactory.config = baseConfig;
+      tokenFactory.setConfig(baseConfig);
 
       if (tokenFactory.hasToken() || tokenFactory.isInternal() || tokenFactory.isLoginApp()) {
          app.constant('config', baseConfig);
@@ -61,44 +61,40 @@ function startApp () {
 */
 angular.module('tokenModule', []).config(['$provide', function ($provide) {
    $provide.factory('tokenFactory', function () {
+      var config = {};
       return {
-         // Always try to get the base-config
-         config: {},
+
+         setConfig: function (data) {
+            config = data;
+         },
 
          login: function () {
-            var self = this;
-            window.location.href = self.getLoginAppUrl('login', 'redirect', 'app=' + self.config.app.name);
+            window.location.href = this.getLoginAppUrl('login', 'redirect', 'app=' + config.app.name);
          },
 
          logout: function () {
-            var self = this;
-            window.location.href = self.getLoginAppUrl('logout', false);
+            window.location.href = this.getLoginAppUrl('logout', false);
          },
 
          hasToken: function () {
-            var self = this;
-            return !!self.getUrlParameter('token');
+            return !!this.getUrlParameter('token');
          },
 
          isInternal: function () {
-            var self = this,
-               internal = self.getUrlParameter('internal');
-            return internal === 'ksdf6s80fsa9s0madf7s9df';
+            return this.getUrlParameter('internal') === 'ksdf6s80fsa9s0madf7s9df';
          },
 
          isLoginApp: function () {
-            var self = this,
+            // For dev replace localhost always by ip
+            var origin = window.location.origin.replace('localhost', '127.0.0.1'),
                // For dev replace localhost always by ip
-               origin = window.location.origin.replace('localhost', '127.0.0.1'),
-               // For dev replace localhost always by ip
-               loginUri = self.config.loginMainUrl.replace('localhost', '127.0.0.1');
+               loginUri = config.loginMainUrl.replace('localhost', '127.0.0.1');
 
             return (origin === loginUri);
          },
 
          getLoginAppUrl: function (page, redirect, param) {
-            var self = this,
-               url = self.config.loginMainUrl + '/#/' + page;
+            var url = config.loginMainUrl + '/#/' + page;
             if (redirect) {
                var newUrl = window.location.href.split('?')[0]; // cut away old query parameter
                // Fix for non ui-router routes redirect

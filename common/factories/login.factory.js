@@ -7,11 +7,15 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.11
+ * @version 0.0.12
  */
 
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q', 'tokenFactory',
    function ($rootScope, config, $http, $state, $window, $location, $q, tokenFactory) {
+
+      // init tokenfactory;
+      tokenFactory.setConfig(config);
+
       var loginData = {
          /* ---- from session db ---- */
          // token
