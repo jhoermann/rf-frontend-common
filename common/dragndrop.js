@@ -6,7 +6,8 @@
  * Internal utility function to prevent default
  * handling for a given event.
  */
-function _dragndrop_preventDefault (event) {
+// eslint-disable-next-line no-unused-vars
+function _dragndropPreventDefault (event) {
    event.stopPropagation();
    event.preventDefault();
 }
@@ -26,15 +27,16 @@ function _dragndrop_preventDefault (event) {
  *     }
  *  })
  */
+// eslint-disable-next-line no-unused-vars
 function initializeDragAndDrop (elem, callback) {
    elem.addEventListener('drop', function (event) {
-      _dragndrop_preventDefault(event);
+      _dragndropPreventDefault(event);
       callback(event.dataTransfer.files);
    }, false);
-   elem.addEventListener('dragover', _dragndrop_preventDefault, false);
-   elem.addEventListener('dragdrop', _dragndrop_preventDefault, false);
-   elem.addEventListener('dragenter', _dragndrop_preventDefault, false);
-   elem.addEventListener('dragleave', _dragndrop_preventDefault, false);
+   elem.addEventListener('dragover', _dragndropPreventDefault, false);
+   elem.addEventListener('dragdrop', _dragndropPreventDefault, false);
+   elem.addEventListener('dragenter', _dragndropPreventDefault, false);
+   elem.addEventListener('dragleave', _dragndropPreventDefault, false);
 }
 
 /**
@@ -52,7 +54,9 @@ function initializeDragAndDrop (elem, callback) {
  * @param file The file to read
  * @param handler
  */
+// eslint-disable-next-line no-unused-vars
 function readFileIntoMemory (file, callback) {
+   // eslint-disable-next-line no-undef
    var reader = new FileReader();
    reader.onload = function () {
       callback({

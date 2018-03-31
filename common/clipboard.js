@@ -1,6 +1,7 @@
 // Source:
 // https://techoverflow.net/2018/03/30/copying-strings-to-the-clipboard-using-pure-javascript/
 
+// eslint-disable-next-line no-unused-vars
 function copyStringToClipboard (str) {
    // Create new element
    var el = document.createElement('textarea');
