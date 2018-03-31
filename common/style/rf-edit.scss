@@ -1,3 +1,14 @@
+/** rf-edit
+ *
+ * @example
+ * <div class="rf-edit rf-label">
+ *    <label>{{lang.mobil}}</label>
+ *    <input type="text" ng-model="user.mobil"/>
+ * </div>
+ *
+ * @version 0.0.3
+ */
+
 .rf-edit {
   padding: 5px 0 0;
   margin-bottom: 5px;
@@ -17,6 +28,11 @@
     &:hover {
       @include box-shadow(0, 0, 3px, 0px, $orange_1);
     }
+  }
+
+  textarea {
+    min-width: 100%;
+    max-width: 100%;
   }
 
   select {
@@ -52,6 +68,11 @@
     select,
     textarea {
       width: 60%;
+    }
+
+    textarea {
+      min-width: 60%;
+      max-width: 60%;
     }
   }
   &.rf-disabled {

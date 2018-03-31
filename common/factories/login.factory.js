@@ -7,11 +7,14 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.11
+ * @version 0.0.12
  */
 
-app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q', 'tokenFactory',
-   function ($rootScope, config, $http, $state, $window, $location, $q, tokenFactory) {
+/* globals rfTokenFactory */
+
+app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q',
+   function ($rootScope, config, $http, $state, $window, $location, $q) {
+
       var loginData = {
          /* ---- from session db ---- */
          // token
@@ -94,9 +97,9 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          token = token || $location.search().token;
 
          // If no token is presented and skipLoginCheck is false then redirect to login page
-         if (!token && !tokenFactory.isInternal()) {
+         if (!token && !rfTokenFactory.isInternal()) {
             _clearLoginData(); // Safety clear the loginData if no token is presented and broadcast a loggedOut event to remove old data
-            tokenFactory.login();
+            rfTokenFactory.login();
             return;
          }
          _setLoginData(token); // Set new login token data
@@ -104,7 +107,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       }
 
       function _login () {
-         tokenFactory.login();
+         rfTokenFactory.login();
       }
 
       /**
@@ -112,7 +115,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       */
       function _logout () { // Send logout to server and remove session from db
          loginData = {};
-         tokenFactory.logout();
+         rfTokenFactory.logout();
       }
 
       /**

@@ -2,14 +2,13 @@
  * @desc bootstrap angular application
  * do not use in html: ng-app="app" (this would also bootstrap the app)
  *
- * @version 0.0.4
+ * @version 0.0.5
  *
  *
  */
 function startApp () {
-   var initInjector = angular.injector(['ng', 'tokenModule']),
-      $http = initInjector.get('$http'),
-      tokenFactory = initInjector.get('tokenFactory');
+   var initInjector = angular.injector(['ng']),
+      $http = initInjector.get('$http');
 
    var servURL = window.location.origin + window.location.pathname;
    if (servURL.charAt(servURL.length - 1) !== '/') {
@@ -28,115 +27,108 @@ function startApp () {
          for (var key in response) {
             baseConfig[key] = response[key];
          }
-         bootstrapApplication(baseConfig);
+         rfTokenFactory.setConfig(baseConfig);
+
+         if (rfTokenFactory.hasToken() || rfTokenFactory.isInternal() || rfTokenFactory.isLoginApp()) {
+            bootstrapApplication(baseConfig);
+            return;
+         }
+
+         rfTokenFactory.login();
       })
-      .error(function (err) { // could not post, rf-acl not present => still bootstrap the app
+      // could not post, rf-acl not present => bootstrap without login
+      .error(function (err) {
          console.log(err);
          bootstrapApplication(baseConfig);
       });
 
 
    function bootstrapApplication (baseConfig) {
-      tokenFactory.config = baseConfig;
-
-      if (tokenFactory.hasToken() || tokenFactory.isInternal() || tokenFactory.isLoginApp()) {
-         app.constant('config', baseConfig);
-         angular.element(document).ready(function () {
-            angular.bootstrap(document, ['app']);
-         });
-         return;
-      }
-
-      tokenFactory.login();
+      app.constant('config', baseConfig);
+      angular.element(document).ready(function () {
+         angular.bootstrap(document, ['app']);
+      });
    }
 }
 
 
 /**
- * Angular module to check token and redirect
- * Got an error about tokenFactory not found ($injector:unpr)?
- * Just go to your application's "var app = ..."
- * declaration and add 'tokenModule' to the dependencies
- * i.e. the second list of angular.module
+ * token module
+ * used in loginfactory and bootstrap
 */
-angular.module('tokenModule', []).config(['$provide', function ($provide) {
-   $provide.factory('tokenFactory', function () {
-      return {
-         // Always try to get the base-config
-         config: {},
 
-         login: function () {
-            var self = this;
-            window.location.href = self.getLoginAppUrl('login', 'redirect', 'app=' + self.config.app.name);
-         },
+var rfTokenFactory = {
 
-         logout: function () {
-            var self = this;
-            window.location.href = self.getLoginAppUrl('logout', false);
-         },
+   config: {},
 
-         hasToken: function () {
-            var self = this;
-            return !!self.getUrlParameter('token');
-         },
+   setConfig: function (data) {
+      this.config = data;
+   },
 
-         isInternal: function () {
-            var self = this,
-               internal = self.getUrlParameter('internal');
-            return internal === 'ksdf6s80fsa9s0madf7s9df';
-         },
+   login: function () {
+      window.location.href = this.getLoginAppUrl('login', 'redirect', 'app=' + this.config.app.name);
+   },
 
-         isLoginApp: function () {
-            var self = this,
-               // For dev replace localhost always by ip
-               origin = window.location.origin.replace('localhost', '127.0.0.1'),
-               // For dev replace localhost always by ip
-               loginUri = self.config.loginMainUrl.replace('localhost', '127.0.0.1');
+   logout: function () {
+      window.location.href = this.getLoginAppUrl('logout', false);
+   },
 
-            return (origin === loginUri);
-         },
+   hasToken: function () {
+      return !!this.getUrlParameter('token');
+   },
 
-         getLoginAppUrl: function (page, redirect, param) {
-            var self = this,
-               url = self.config.loginMainUrl + '/#/' + page;
-            if (redirect) {
-               var newUrl = window.location.href.split('?')[0]; // cut away old query parameter
-               // Fix for non ui-router routes redirect
-               if (!window.location.hash) {
-                  newUrl = window.location.origin + '/#/';
-               }
-               url += '?redirect_uri=' + encodeURIComponent(newUrl) +
-                  ((param) ? ('&' + param) : '');
-            }
+   isInternal: function () {
+      return this.getUrlParameter('internal') === 'ksdf6s80fsa9s0madf7s9df';
+   },
 
-            return url;
-         },
+   isLoginApp: function () {
+      // For dev replace localhost always by ip
+      var origin = window.location.origin.replace('localhost', '127.0.0.1'),
+         // For dev replace localhost always by ip
+         loginUri = this.config.loginMainUrl.replace('localhost', '127.0.0.1');
 
-         getUrlParameter: function (key) {
-            var href = window.location.href,
-               uri = '',
-               value = null,
-               params;
+      return (origin === loginUri);
+   },
 
-            // Cut ? from uri
-            if (href.indexOf('?') >= 0) {
-               uri = href.split('?')[1];
-            }
-
-            // Find required param
-            params = uri.split('&');
-            for (var p in params) {
-               var keyValue = params[p].split('=');
-               if (keyValue[0] === key) {
-                  value = keyValue[1];
-                  break;
-               }
-            }
-
-            return value;
+   getLoginAppUrl: function (page, redirect, param) {
+      var url = this.config.loginMainUrl + '/#/' + page;
+      if (redirect) {
+         var newUrl = window.location.href.split('?')[0]; // cut away old query parameter
+         // Fix for non ui-router routes redirect
+         if (!window.location.hash) {
+            newUrl = window.location.origin + '/#/';
          }
-      };
-   });
-}]);
+         url += '?redirect_uri=' + encodeURIComponent(newUrl) +
+               ((param) ? ('&' + param) : '');
+      }
+
+      return url;
+   },
+
+   getUrlParameter: function (key) {
+      var href = window.location.href,
+         uri = '',
+         value = null,
+         params;
+
+         // Cut ? from uri
+      if (href.indexOf('?') >= 0) {
+         uri = href.split('?')[1];
+      }
+
+      // Find required param
+      params = uri.split('&');
+      for (var p in params) {
+         var keyValue = params[p].split('=');
+         if (keyValue[0] === key) {
+            value = keyValue[1];
+            break;
+         }
+      }
+
+      return value;
+   }
+};
+
 
 startApp();
