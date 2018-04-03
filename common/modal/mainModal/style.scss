@@ -3,61 +3,67 @@ rf-modal {
    .box {
       position: fixed;
       z-index: 9300;
-      height: 70%;
       top: 0;
       display: block;
       text-align: center;
       margin: 0 auto;
       @include transition(0.15s);
       opacity: 0;
-      // small, default
-      width: 40%;
-      left: 30%;
-      // deactive default rf-box shadow
-      // => is done separate in header/modal-container
-      // reason: rf box height is bigger, thant content
       -webkit-box-shadow: none;
       -moz-box-shadow: none;
       box-shadow: none;
 
-      &.medium {
+      // deactive default rf-box shadow
+      // => is done separate in header/modal-container
+      // reason: rf box height is bigger, thant content
+
+      /*
+         TODO: make modal sizes responsive
+         => small dialogs should be displayed "max" on a tablet or phone
+      */
+
+
+      &.small {
          width: 20%;
          left: 40%;
       }
 
-      &.middle {
+      // default
+      width: 40%;
+      left: 30%;
+      height: 70%;
+
+      &.medium {
          width: 60%;
          left: 20%;
       }
 
-      &.big {
+      &.large {
          width: 90%;
          left: 5%;
          height: 85%;
-      }
-
-      &.maxheader {
-         width: 100%;
-         left: 0;
-         min-height: 100%;
-         modal-body{
-            bottom: 0;
-            position: fixed;
-            top: 34px;
-            left: 0;
-            padding: 0;
-         }
       }
 
       &.max {
          width: 100%;
          left: 0;
          height: 100%;
-
-         .modal-container {
-            top: 0;
+         modal-body{
+            background: white;
+            bottom: 0;
+            position: fixed;
+            top: 34px;
+            left: 0;
+            // default padding
+            padding: 10px;
+         }
+         &.header-hidden modal-body{
+            top: 0px;
+            // padding might be done individual in a sub container
+            padding: 0px;
          }
       }
+
    }
 
    .header {
