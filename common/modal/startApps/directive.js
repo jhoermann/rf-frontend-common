@@ -17,7 +17,7 @@ app.directive('rfModalStartApps', ['loginFactory', function (loginFactory) {
       },
       templateUrl: 'global/common/modal/startApps/template.html',
       link: function ($scope, element) {
-         $scope.modal.size = 'big';
+         $scope.modal.size = 'large';
 
          var urls = loginFactory.getAppUrls('rf-app-login');
          if (urls.main && urls.startApps) {
