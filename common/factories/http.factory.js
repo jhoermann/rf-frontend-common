@@ -1,7 +1,7 @@
 /**
  * @module http factory
  * @desc backend middleware with methods get and post, error handling included
- * @version 0.1.2
+ * @version 0.1.3
  */
 
 // Source: https://stackoverflow.com/a/901144/2597135
@@ -30,9 +30,9 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', func
    }
 
 
-   function successFunction (type, url, successFunc, response) {
+   function successFunction (type, url, successFunc, response, requestId) {
       console.log('successfull ' + type + ' to /' + url);
-      if (successFunc) successFunc(response);
+      if (successFunc) successFunc(response, requestId);
    }
 
    function _setHeaderToken (token) {
@@ -68,12 +68,13 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', func
             data = {};
          }
          data = data || {};
+         var requestId = data.requestId || '';
 
          $http.post(config.serverURL + url, {data: data})
          // {data: data} - always parse as json, prevent body-parser errors in node backend
             .success(function (response) {
                self.retryCount = 0; // Reset retry count on every request, ToDo: Maybe this is a problem if you make multiple invalid requests in a row
-               successFunction('POST', url, successFunc, response);
+               successFunction('POST', url, successFunc, response, requestId);
             })
             .error(function (data, status, headers, config) {
                self.handleErrorResponse(data, status, headers, config)
@@ -101,6 +102,8 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', func
             data = null;
          }
 
+         var requestId = data.requestId || '';
+
          var dataQueryPart = (data ? '?data=' + encodeURIComponent(JSON.stringify(data)) : '');
          // Internal / magic token processor
          // Used for internal requests
@@ -113,7 +116,7 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', func
          $http.get(config.serverURL + url + dataQueryPart + internalQueryPart)
             .success(function (response) {
                self.retryCount = 0; // Reset retry count on every request, ToDo: Maybe this is a problem if you make multiple invalid requests in a row
-               successFunction('GET', url, successFunc, response);
+               successFunction('GET', url, successFunc, response, requestId);
             })
             .error(function (data, status, headers, config) {
                self.handleErrorResponse(data, status, headers, config)
