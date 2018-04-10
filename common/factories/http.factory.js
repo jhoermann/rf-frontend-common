@@ -102,7 +102,7 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', func
             data = null;
          }
 
-         var requestId = data.requestId || '';
+         var requestId = (data && data.requestId) ? data.requestId : '';
 
          var dataQueryPart = (data ? '?data=' + encodeURIComponent(JSON.stringify(data)) : '');
          // Internal / magic token processor
