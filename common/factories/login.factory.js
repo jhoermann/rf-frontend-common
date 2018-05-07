@@ -89,7 +89,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             return loginData.userSettings;
          },
 
-         setAppSettings: _setAppSettings,
          setUserSettings: _setUserSettings
       };
 
