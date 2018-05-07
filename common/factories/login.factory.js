@@ -86,6 +86,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                   : appSettings);
          },
          getUserSettings: function () {
+            // TODO: maybe filter out and return just current app settings
             return loginData.userSettings;
          },
 
@@ -270,12 +271,12 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       /* -------------  settings  -------------- */
 
-      function _setUserSettings (appName, userSettings, callback) {
-         if (!userSettings || !appName) {
+      function _setUserSettings (userSettings, callback) {
+         if (!userSettings) {
             return console.log('[loginFactory] cannot set user settings, incomplete function parameters!');
          }
          postToLogin('settings/app/user', {
-            name: appName,
+            name: config.app.name,
             settings: userSettings
          }, {})
             .then(function (settings) {
