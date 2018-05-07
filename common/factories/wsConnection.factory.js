@@ -49,7 +49,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
       var wsConnectionOpen = false;
 
       // connection timeout check
-      var connectionTimeout = 5, // seconds
+      var defaultConnectionTimeout = 5, // seconds
          firstFailure = true; // reject packges after second error => prevent to many error messages
 
       // stay alive signal; needed to prevent firewalls cutting of the line after certain time
@@ -155,8 +155,11 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
       }
 
 
-      function _sendWSMessageAndGetResponsePromise (func, data) { // handle Rrquests
+      function _sendWSMessageAndGetResponsePromise (func, data, timeout) { // handle Rrquests
          var defer = $q.defer();
+         // Use custom or default timeout
+         var connectionTimeout = timeout || defaultConnectionTimeout;
+         defer._connectionTimeout = connectionTimeout;
 
          // generate new callback ID for message
          currentCallbackId = (currentCallbackId + 1) % 100000;
@@ -234,7 +237,7 @@ app.factory('wsConnectionFactory', ['$q', '$rootScope', '$window', 'loginFactory
                }
             }
          }
-         log('package rejected: ' + connectionTimeout + ' seconds no reply from server');
+         log('package rejected: ' + defer._connectionTimeout + ' seconds no reply from server');
       }
 
       function _closeWebsocket () {
