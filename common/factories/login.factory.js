@@ -270,8 +270,14 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       /* -------------  settings  -------------- */
 
-      function _setUserSettings (userSettings, callback) {
-         postToLogin('settings/app/user', loginData.userSettings, {})
+      function _setUserSettings (appName, userSettings, callback) {
+         if (!userSettings || !appName) {
+            return console.log('[loginFactory] cannot set user settings, incomplete function parameters!');
+         }
+         postToLogin('settings/app/user', {
+            name: appName,
+            settings: userSettings
+         }, {})
             .then(function (settings) {
                if (callback) callback(settings);
             }, function (err) {
