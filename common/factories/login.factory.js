@@ -271,24 +271,13 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       /* -------------  settings  -------------- */
 
-      function _setAppSettings (appSettings, callback) {
-         postToLogin('settings/app', {
-            appSettings: loginData.appSettings
-         }, {}).then(function (settings) {
-            if (callback) callback(settings);
-         }, function (err) {
-            console.log(err);
-         });
-      }
-
       function _setUserSettings (userSettings, callback) {
-         postToLogin('settings/app/user', {
-            userSettings: loginData.userSettings
-         }, {}).then(function (settings) {
-            if (callback) callback(settings);
-         }, function (err) {
-            console.log(err);
-         });
+         postToLogin('settings/app/user', loginData.userSettings, {})
+            .then(function (settings) {
+               if (callback) callback(settings);
+            }, function (err) {
+               console.log(err);
+            });
       }
 
       /* ------------- helper functions --------------- */
