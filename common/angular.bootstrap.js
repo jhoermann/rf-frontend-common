@@ -2,7 +2,7 @@
  * @desc bootstrap angular application
  * do not use in html: ng-app="app" (this would also bootstrap the app)
  *
- * @version 0.0.5
+ * @version 0.0.6
  *
  *
  */
@@ -10,7 +10,14 @@ function startApp () {
    var initInjector = angular.injector(['ng']),
       $http = initInjector.get('$http');
 
-   var servURL = window.location.origin + window.location.pathname;
+
+   var origin = window.location.origin;
+
+   if (!origin) { // IE 11 and below
+      origin = window.location.protocol + '//' + window.location.hostname;
+   }
+
+   var servURL = origin + window.location.pathname;
    if (servURL.charAt(servURL.length - 1) !== '/') {
       servURL += '/';
    }
