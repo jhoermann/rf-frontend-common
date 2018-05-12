@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.12
+ * @version 0.0.13
  */
 
 /* globals rfTokenFactory */
@@ -20,6 +20,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          // token
          // userAccount
          // userGroups
+         // language
          // rights
          // isloginAdmin => only for loginMenu
 
@@ -55,6 +56,10 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          getToken: _getToken,
          verifyToken: _verifyToken,
          refreshToken: _refreshToken,
+
+         getLanguage: function () {
+            return loginData.language || 'en';
+         },
 
          // rights
          hasRight: _hasRight, // hasApp('accounting', "write")
