@@ -23,7 +23,7 @@ app.directive('rfPolicyLink', ['http', 'langFactory', 'config', function (http, 
       scope: {
          ngModel: '=' // bind a variable out of the html via attribute
       },
-      templateUrl: 'global/directives/policy-link/template.html',
+      templateUrl: 'global/common/policy-link/template.html',
       link: function ($scope, elem, attr, ctrl) {
          $scope.lang = langFactory.getCurrentDictionary();
          $scope.termsAndPolicyLink = config.termsAndPolicyLink;
