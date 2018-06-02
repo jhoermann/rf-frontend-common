@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.13
+ * @version 0.0.14
  */
 
 /* globals rfTokenFactory */
@@ -18,7 +18,8 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       var loginData = {
          /* ---- from session db ---- */
          // token
-         // userAccount
+         // user
+         // user.account
          // userGroups
          // language
          // rights
@@ -36,16 +37,20 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
          // login
          run: _run,
+         initAndRefreshOnLogin: _initAndRefreshOnLogin,
          login: _login,
          logout: _logout,
+
+
          getLoggedIn: _getLoggedIn,
 
-         getUserData: _getUserData, // return user
+         // user data
+         getUserData: _getUserData,
+         getUserAccount: _getUserAccount,
+
          setLoginData: _setLoginData,
 
-         initAndRefreshOnLogin: _initAndRefreshOnLogin,
-
-         // account data
+         // user data
          getUserName: function () {
             return _getUserAttribute('email');
          },
@@ -155,6 +160,11 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       function _getUserData () {
          return loginData.user || {};
       }
+
+      function _getUserAccount () {
+         return loginData.user.account || {};
+      }
+
 
       /**
        * Verify the token
