@@ -26,7 +26,7 @@
     background: none;
 
     &:hover {
-      @include box-shadow(0, 0, 3px, 0px, $orange_1);
+      @include box-shadow(0, 0, 3px, 0px, $main_color_light);
     }
   }
 

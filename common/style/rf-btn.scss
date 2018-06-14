@@ -2,7 +2,7 @@
 .rf-btn.rf-btn-inverted:hover {
   color: #fff;
   border: none;
-  background: $orange;
+  background: $main_color;
   padding: 5px;
   border-color: #fff;
   margin: 5px 0;
@@ -17,20 +17,20 @@
 
   &.rf-btn-green {
     color: #fff;
-    background: $green_1;
+    background: $green;
     border-color: #fff;
   }
 
   &.rf-btn-red {
     color: #fff;
-    background: $red_1;
+    background: $darkred;
     border-color: #fff;
   }
 
   &.rf-btn-disabled {
-    color: $gray_1;
-    background: $gray_3;
-    border-color: $gray_1;
+    color: $grey;
+    background: $lightgrey;
+    border-color: $grey;
     cursor: not-allowed;
   }
 
@@ -55,27 +55,27 @@
 .rf-btn.rf-btn-inverted,
 .rf-btn:hover {
   @extend .rf-btn;
-  color: $orange;
+  color: $main_color;
   background: #fff;
-  border-color: $orange;
+  border-color: $main_color;
   margin: 5px 0;
 
   &.rf-btn-green {
-    color: $green_1;
+    color: $darkgreen;
     background: #fff;
-    border-color: $green_1;
+    border-color: $darkgreen;
   }
 
   &.rf-btn-red {
-    color: $red_1;
+    color: $darkred;
     background: #fff;
-    border-color: $red_1;
+    border-color: $darkred;
   }
 
   &.rf-btn-disabled {
-    color: $gray_1;
-    background: $gray_3;
-    border-color: $gray_1;
+    color: $grey;
+    background: $lightgrey;
+    border-color: $grey;
   }
 
   &.rf-btn-transparent {
@@ -133,7 +133,7 @@
 
 .rf-btn-list-labeled {
   margin: 5px 0;
-  border: 1px solid $orange;
+  border: 1px solid $main_color;
 
   label {
     float: left;

@@ -8,14 +8,14 @@ rf-login-menu {
       background: #fff;
       height: 40px;
       display: block;
-      color: $orange_1;
+      color: $main_color_light;
       height: 40px;
       line-height: 40px;
    }
 
    .fa.fa-power-off.switch-icon{
       &:hover{
-         color: $orange;
+         color: $main_color;
       }
    }
 

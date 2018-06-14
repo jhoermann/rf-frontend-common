@@ -4,8 +4,8 @@
    textarea {
       &.rf-form {
          &.ng-invalid {
-            border: 1px solid red;
-            box-shadow: 0 0 10px 0 red;
+            border: 1px solid $red;
+            box-shadow: 0 0 10px 0 $red;
          }
       }
    }
