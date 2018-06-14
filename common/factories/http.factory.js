@@ -153,6 +153,7 @@ app.factory('http', ['$http', 'config', '$rootScope', 'loginFactory', '$q', func
       fileSave: function (url, data, successFunc, errFunc) {
          var headers = data.headers || {};
          headers['Content-type'] = 'application/octet-stream';
+         headers['Accept-Charset'] = 'charset=utf-8'; // needed to allow utf8 in filenames like "äöü"
          headers.preview = (data.mimetype === 'application/pdf') ? 'true' : 'false';
          $http({
             method: 'POST',
