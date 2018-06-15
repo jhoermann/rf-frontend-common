@@ -1,7 +1,21 @@
 //global colors //////////////////////////////////
+
+// main theme color
 $main_color: #f47721;
 $main_color_light: #ffa200;
 $main_color_dark: #de7704;
+$main_color_contrast_light: #0b88de;
+$main_color_contrast_dark: #1d398c;
+
+// main elements background
+$nav_background: #282630;
+$sidebar_background: #282630;
+$header_background: #282630;
+
+// fields
+$invalid: red;
+$valid: #d7fa96;
+$untouched: #fff;
 
 // black - grey - white
 $midwhite: #fcfcfc;     // background color
@@ -21,10 +35,6 @@ $darkred: #a53f3f;
 $yellow: #f9ff00;
 $darkyellow: #d08d31;
 
-// fields
-$invalid: red;
-$valid: #d7fa96;
-$untouched: #fff;
 
 
 //global resolution variables //////////////////////////////////
