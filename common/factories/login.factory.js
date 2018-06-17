@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.14
+ * @version 0.1.0
  */
 
 /* globals rfTokenFactory */
@@ -88,6 +88,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          // global  app settings
          hasApp: _hasApp, // hasApp('rf-app-login')
          getAppUrls: _getAppUrls, // getAppUrls('rf-app-login')
+         addTokenToUrl: _addTokenToUrl,
 
          getAppSettings: function () {
             // If config.app.name settings not set return the whole appSettings
@@ -272,6 +273,16 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
             urls = loginData.globalSettings.apps[app].urls;
          }
          return urls;
+      }
+
+      function _addTokenToUrl (url) {
+         if (!url) return;
+
+         // try to add '#' for angular to prevent router "unmatched redirect"
+         if (url[url.length - 1] !== '/') url += '/';
+         if (url[url.length - 2] !== '#') url += '#/';
+
+         return url + '?token=' + rawToken;
       }
 
       /**
