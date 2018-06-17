@@ -280,7 +280,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
          // try to add '#' for angular to prevent router "unmatched redirect"
          if (url[url.length - 1] !== '/') url += '/';
-         if (url[url.length - 2] !== '#') url += '#/';
+         if (url.search('#') === -1) url += '#/';
 
          return url + '?token=' + rawToken;
       }
