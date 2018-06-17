@@ -15,9 +15,11 @@
 app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q',
    function ($rootScope, config, $http, $state, $window, $location, $q) {
 
+      var rawToken = ''; // everything is stored here
+
       var loginData = {
          /* ---- from session db ---- */
-         // token
+         // token => small token for refreshing
          // user
          // user.account
          // userGroups
@@ -59,6 +61,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          },
 
          getToken: _getToken,
+         getRawToken: _getRawToken,
          verifyToken: _verifyToken,
          refreshToken: _refreshToken,
 
@@ -156,6 +159,9 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          return loginData.token;
       }
 
+      function _getRawToken () {
+         return rawToken;
+      }
 
       function _getUserData () {
          return loginData.user || {};
@@ -225,6 +231,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       * @param {*} token
       */
       function _setLoginData (token) {
+         rawToken = token;
          var payload = token.split('.')[1],
             payloadBase64 = payload.replace(/-/g, '+').replace(/_/g, '/');
          loginData = JSON.parse(decodeURIComponent(escape(window.atob(payloadBase64))));
