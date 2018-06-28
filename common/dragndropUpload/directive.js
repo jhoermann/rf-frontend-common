@@ -6,6 +6,7 @@
  *
  * where $scope.onupload is a function(content, filename, mimetype, size).
  */
+
 app.directive('dragndropUpload', ['$parse', function ($parse) {
    return {
       restrict: 'A', // called on class "uploadDirective"
@@ -13,9 +14,11 @@ app.directive('dragndropUpload', ['$parse', function ($parse) {
          $scope.onupload = $parse(attr.onupload);
 
          // Initialize handling of drag & drop events
+         // eslint-disable-next-line no-undef
          initializeDragAndDrop(angular.element(elem)[0], function (files) {
             // Iterate over files
             for (var i = 0; i < files.length; i++) {
+               // eslint-disable-next-line no-undef
                readFileIntoMemory(files[i], function (fileInfo) {
                   // Call callback
                   $scope.onupload(
