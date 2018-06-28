@@ -1,17 +1,20 @@
 /**
  * Drag & drop upload wrapper. Use like this:
- * <div class="uploadSection" dragndrop-upload onupload="onupload">
+ * <div class="uploadSection" dragndrop-upload on-upload="onupload">
  *      <!-- content: whatever you need, has no effect on upload -->
  * </div>
  *
  * where $scope.onupload is a function(content, filename, mimetype, size).
  */
 
-app.directive('dragndropUpload', ['$parse', function ($parse) {
+app.directive('dragndropUpload', function ($parse) {
    return {
       restrict: 'A', // called on class "uploadDirective"
+      scope: {
+         onUpload: '&'
+      },
       link: function ($scope, elem, attr) {
-         $scope.onupload = $parse(attr.onupload);
+         $scope.onUpload = $scope.onUpload();
 
          // Initialize handling of drag & drop events
          // eslint-disable-next-line no-undef
@@ -21,13 +24,15 @@ app.directive('dragndropUpload', ['$parse', function ($parse) {
                // eslint-disable-next-line no-undef
                readFileIntoMemory(files[i], function (fileInfo) {
                   // Call callback
-                  $scope.onupload(
-                     fileInfo.content, fileInfo.name, fileInfo.type,
-                     fileInfo.size);
+                  $scope.$apply(function () {
+                     $scope.onUpload(
+                        fileInfo.content, fileInfo.name, fileInfo.type,
+                        fileInfo.size);
+                  });
                });
             }
          });
 
       }
    };
-}]);
+});
