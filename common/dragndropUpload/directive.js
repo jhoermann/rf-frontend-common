@@ -24,11 +24,9 @@ app.directive('dragndropUpload', function ($parse) {
                // eslint-disable-next-line no-undef
                readFileIntoMemory(files[i], function (fileInfo) {
                   // Call callback
-                  $scope.$apply(function () {
-                     $scope.onUpload(
-                        fileInfo.content, fileInfo.name, fileInfo.type,
-                        fileInfo.size);
-                  });
+                  $scope.onUpload(
+                     fileInfo.content, fileInfo.name, fileInfo.type,
+                     fileInfo.size);
                });
             }
          });
