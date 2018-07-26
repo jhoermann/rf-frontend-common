@@ -71,7 +71,7 @@ app.directive('rfModal', ['$compile', '$timeout', '$rootScope', 'langFactory', f
             // press "ESC" to close modal
             document.onkeydown = function (event) {
                if (event.which === 27) {
-                  $scope.rfModal.close();
+                  $scope.rfModal.quit();
                }
             };
 
