@@ -17,25 +17,50 @@ rf-modal {
       // => is done separate in header/modal-container
       // reason: rf box height is bigger, thant content
 
-      /*
-         TODO: make modal sizes responsive
-         => small dialogs should be displayed "max" on a tablet or phone
-      */
-
-
       &.small {
-         width: 20%;
-         left: 40%;
+         @media (max-width: 767px) {
+            width: 90%;
+            left: 5%;
+         }
+         @media (min-width: 768px) and (max-width: 991px) {
+            width: 60%;
+            left: 20%;
+         }
+         @media (min-width: 992px) and (max-width: 1399px) {
+            width: 40%;
+            left: 30%;
+         }
+         @media (min-width: 1400px) {
+            width: 20%;
+            left: 40%;
+         }
       }
-
       // default
-      width: 40%;
-      left: 30%;
       height: 70%;
+      @media (max-width: 991px) {
+         width: 90%;
+         left: 5%;
+      }
+      @media (min-width: 992px) and (max-width: 1399px) {
+         width: 60%;
+         left: 20%;
+      }
+      @media (min-width: 1400px) {
+         width: 40%;
+         left: 30%;
+      }
 
       &.medium {
          width: 60%;
          left: 20%;
+         @media (max-width: 1399px) {
+            width: 90%;
+            left: 5%;
+         }
+         @media (min-width: 1400px) {
+            width: 60%;
+            left: 20%;
+         }
       }
 
       &.large {
