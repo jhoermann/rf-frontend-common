@@ -54,6 +54,7 @@ rf-modal {
          width: 60%;
          left: 20%;
          @media (max-width: 1399px) {
+            height: 90%;
             width: 90%;
             left: 5%;
          }
@@ -67,6 +68,9 @@ rf-modal {
          width: 90%;
          left: 5%;
          height: 85%;
+         @media (max-width: 1399px) {
+            height: 95%;
+         }
       }
 
       &.max {
