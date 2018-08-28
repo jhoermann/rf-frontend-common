@@ -1,36 +1,39 @@
 /**
  * @module langFactory
  * @desc fetch language as json data from server, provide current language
- * @version 0.1.2
+ * @version 0.1.1
  *
  * TODO:
  *  * unify language factory in every project
  *  * exted original json with additional languale jsons dynamic
  */
 
-app.service('langFactory', ['$http', '$q', '$rootScope', 'config', function ($http, $q, $rootScope, config) {
+app.factory('langFactory', ['$http', '$q', '$rootScope', 'config', function ($http, $q, $rootScope, config) {
    var dictionary = {},
       defaultLanguage = 'en';
 
-   this.supportedLang = ['en', 'de'];
+   var Services = {
 
-   this.currentLang = null;
+      supportedLang: ['en', 'de'],
 
-   this.languageSet = false;
+      currentLang: null,
 
-   this.translate = _translate;
+      languageSet: false,
 
-   this.getDictionary = _getDictionary;
-   this.getCurrentDictionary = _getCurrentDictionary; // returns obj dictionary["en"]
+      translate: _translate, // translates word in current language:    translate("wordToTranslate")
+      // translates in other language:          translate("wordToTranslate", "en")
 
-   this.setLanguage = _setLanguage; // setLanguage("de")
+      getDictionary: _getDictionary,
 
-   this.extendLang = _extendLang;
+      getCurrentDictionary: _getCurrentDictionary, // returns obj dictionary["en"]
 
-   this.format = _create({});
+      setLanguage: _setLanguage, // setLanguage("de")
+
+      extendLang: _extendLang
+   };
 
    function _translate (key, lang) {
-      lang = lang || this.currentLang;
+      lang = lang || Services.currentLang;
       if (dictionary[lang]) { // tranlation available => look for key
          if (dictionary[lang][key]) { // tranlation available => return it
             return dictionary[lang][key];
@@ -54,15 +57,14 @@ app.service('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
    }
 
    function _getCurrentDictionary () {
-      console.log('The language ', this.currentLang);
-      return dictionary[this.currentLang];
+      return dictionary[Services.currentLang];
    }
 
    function _setLanguage (lang) {
       if (dictionary[lang]) { // data already fetched => take it
          setLang(lang);
       } else {
-         if (this.supportedLang.indexOf(lang) !== -1) {
+         if (Services.supportedLang.indexOf(lang) !== -1) {
             // console.log("no data for " + lang + " in factory  =>  fetch from server");
             _fetch(lang,
                function (lang) { // then
@@ -76,12 +78,11 @@ app.service('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
       }
 
       function setLang (lang) {
-         this.currentLang = lang;
-         this.languageSet = true;
-         $rootScope.$broadcast('languageSet', this.currentLang);
+         Services.currentLang = lang;
+         Services.languageSet = true;
+         $rootScope.$broadcast('languageSet', lang);
       }
    }
-
 
    // merge a tranlation object into current dictionary
    function _extendLang (translations) { // translations: {"de": {...}, "en": {...}}
@@ -104,28 +105,6 @@ app.service('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
 
 
    /* -------------------- helper functions ---------------------------- */
-
-   //  ValueError :: String -> Error
-   var ValueError = function (message) {
-      var err = new Error(message);
-      err.name = 'ValueError';
-      return err;
-   };
-   //  defaultTo :: a,a? -> a
-   function _defaultTo (x, y) {
-      return y == null ? x : y;
-   };
-
-   function _lookup (obj, path) {
-      if (!/^\d+$/.test(path[0])) {
-         path = ['0'].concat(path);
-      }
-      for (var idx = 0; idx < path.length; idx += 1) {
-         var key = path[idx];
-         obj = typeof obj[key] === 'function' ? obj[key]() : obj[key];
-      }
-      return obj;
-   };
 
 
    function _merge (obj1, obj2) { // merge obj2 into obj1
@@ -177,7 +156,7 @@ app.service('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
          browserLanguagePropertyKeys = ['language', 'browserLanguage', 'systemLanguage', 'userLanguage'],
          i,
          language = defaultLanguage,
-         match = this.supportedLanguages;
+         match = Services.supportedLanguages;
 
       // HTML 5.1 "navigator.languages"
       if (Array.isArray(nav.languages)) {
@@ -212,4 +191,7 @@ app.service('langFactory', ['$http', '$q', '$rootScope', 'config', function ($ht
 
       return language;
    }
+
+
+   return Services;
 }]);
