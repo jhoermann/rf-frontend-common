@@ -7,17 +7,23 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.0.8
+ * @version 0.1.0
  */
 
-app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q', 'tokenFactory',
-   function ($rootScope, config, $http, $state, $window, $location, $q, tokenFactory) {
+/* globals rfTokenFactory */
+
+app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window', '$location', '$q',
+   function ($rootScope, config, $http, $state, $window, $location, $q) {
+
+      var rawToken = ''; // everything is stored here
+
       var loginData = {
          /* ---- from session db ---- */
-         // token
-         // userAccount
-         // groups
+         // token => small token for refreshing
+         // user
+         // user.account
          // userGroups
+         // language
          // rights
          // isloginAdmin => only for loginMenu
 
@@ -33,35 +39,40 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
          // login
          run: _run,
+         initAndRefreshOnLogin: _initAndRefreshOnLogin,
          login: _login,
          logout: _logout,
+
+
          getLoggedIn: _getLoggedIn,
 
-         getUserData: _getUserData, // return user
+         // user data
+         getUserData: _getUserData,
+         getUserAccount: _getUserAccount,
+
          setLoginData: _setLoginData,
 
-         initAndRefreshOnLogin: _initAndRefreshOnLogin,
-
-         // account data
+         // user data
          getUserName: function () {
-            return _getAccountData('email');
+            return _getUserAttribute('email');
          },
          getUserId: function () {
-            return _getAccountData('_id');
+            return _getUserAttribute('_id');
          },
 
-         getSession: _getSession,
          getToken: _getToken,
+         getRawToken: _getRawToken,
          verifyToken: _verifyToken,
          refreshToken: _refreshToken,
 
-         // rights & groups
-         hasRight: _hasRight,
-         hasAppRight: _hasAppRight,
-
-         hasGroup: function (group) {
-            return loginData.groups.indexOf(group) !== -1;
+         getLanguage: function () {
+            return loginData.language || 'en';
          },
+
+         // rights
+         hasRight: _hasRight, // hasApp('accounting', "write")
+         hasAppRight: _hasAppRight, // hasAppRight('rf-app-cad', 'drawings', "write")
+
          hasUserGroup: function (userGroup) {
             return loginData.userGroups.indexOf(userGroup) !== -1;
          },
@@ -71,21 +82,28 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
          // settings
          getGlobalSettings: function () {
-            return loginData.globalSettings;
+            return loginData.globalSettings || {};
          },
+
+         // global  app settings
+         hasApp: _hasApp, // hasApp('rf-app-login')
+         getAppUrls: _getAppUrls, // getAppUrls('rf-app-login')
+         addTokenToUrl: _addTokenToUrl,
+
          getAppSettings: function () {
             // If config.app.name settings not set return the whole appSettings
             // for backwards compatibility
+            var appSettings = loginData.appSettings || {};
             return (
-               loginData.appSettings.hasOwnProperty(config.app.name)
-                  ? loginData.appSettings[config.app.name]
-                  : loginData.appSettings);
+               appSettings.hasOwnProperty(config.app.name)
+                  ? appSettings[config.app.name]
+                  : appSettings);
          },
          getUserSettings: function () {
+            // TODO: maybe filter out and return just current app settings
             return loginData.userSettings;
          },
 
-         setAppSettings: _setAppSettings,
          setUserSettings: _setUserSettings
       };
 
@@ -93,9 +111,9 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          token = token || $location.search().token;
 
          // If no token is presented and skipLoginCheck is false then redirect to login page
-         if (!token && !tokenFactory.isInternal()) {
+         if (!token && !rfTokenFactory.isInternal()) {
             _clearLoginData(); // Safety clear the loginData if no token is presented and broadcast a loggedOut event to remove old data
-            tokenFactory.login();
+            rfTokenFactory.login();
             return;
          }
          _setLoginData(token); // Set new login token data
@@ -103,14 +121,15 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       }
 
       function _login () {
-         tokenFactory.login();
+         rfTokenFactory.login();
       }
 
       /**
        * Redirect user to logout page
       */
       function _logout () { // Send logout to server and remove session from db
-         tokenFactory.logout();
+         loginData = {};
+         rfTokenFactory.logout();
       }
 
       /**
@@ -141,13 +160,18 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          return loginData.token;
       }
 
-      function _getSession () {
-         return loginData.session;
+      function _getRawToken () {
+         return rawToken;
       }
 
       function _getUserData () {
-         return loginData.user;
+         return loginData.user || {};
       }
+
+      function _getUserAccount () {
+         return loginData.user.account || {};
+      }
+
 
       /**
        * Verify the token
@@ -158,7 +182,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                console.log('[loginFactory] token verified!');
                resolve();
             }, function (err) {
-               console.log('[loginFactory] ' + err);
+               console.log('[loginFactory] ', err);
                reject();
             });
          });
@@ -168,8 +192,6 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
        * Retrive a new token with the old one
       */
       function _refreshToken (sessionId) {
-         sessionId = sessionId || _getSession();
-
          return $q(function (resolve, reject) {
             if (!refreshRunning) { // If there is already a refresh running then wait for it
                refreshRunning = true;
@@ -185,7 +207,13 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                }, function (err) {
                   refreshRunning = false;
                   $rootScope.$broadcast('tokenrefreshed');
-                  console.log('[loginFactory] ' + err);
+                  console.log('[loginFactory] Token refresh failed: ', err);
+                  // Break infinite login loop
+                  if (('' + err).indexOf('No session ID') !== -1) {
+                     // Token set but no session
+                     _clearLoginData();
+                     _redirectWithoutToken();
+                  }
                   reject();
                });
             } else {
@@ -204,6 +232,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       * @param {*} token
       */
       function _setLoginData (token) {
+         rawToken = token;
          var payload = token.split('.')[1],
             payloadBase64 = payload.replace(/-/g, '+').replace(/_/g, '/');
          loginData = JSON.parse(decodeURIComponent(escape(window.atob(payloadBase64))));
@@ -216,7 +245,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          $rootScope.$broadcast('loggedOut');
       }
 
-      function _getAccountData (attribute) {
+      function _getUserAttribute (attribute) {
          return (loginData.user && loginData.user[attribute]) ? loginData.user[attribute] : '';
       }
 
@@ -231,6 +260,29 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       function _hasRight (section, access) {
          return _hasAppRight(config.app.name, section, access);
+      }
+
+      function _hasApp (app) {
+         return (loginData.rights && loginData.rights[app]);
+      }
+
+      function _getAppUrls (app) {
+         var urls = {};
+         if (loginData.globalSettings && loginData.globalSettings.apps &&
+            loginData.globalSettings.apps[app] && loginData.globalSettings.apps[app].urls) {
+            urls = loginData.globalSettings.apps[app].urls;
+         }
+         return urls;
+      }
+
+      function _addTokenToUrl (url) {
+         if (!url) return;
+
+         // try to add '#' for angular to prevent router "unmatched redirect"
+         if (url[url.length - 1] !== '/') url += '/';
+         if (url.search('#') === -1) url += '#/';
+
+         return url + '?token=' + rawToken;
       }
 
       /**
@@ -252,24 +304,19 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
 
       /* -------------  settings  -------------- */
 
-      function _setAppSettings (appSettings, callback) {
-         postToLogin('settings/app', {
-            appSettings: loginData.appSettings
-         }, {}).then(function (settings) {
-            if (callback) callback(settings);
-         }, function (err) {
-            console.log(err);
-         });
-      }
-
       function _setUserSettings (userSettings, callback) {
+         if (!userSettings) {
+            return console.log('[loginFactory] cannot set user settings, incomplete function parameters!');
+         }
          postToLogin('settings/app/user', {
-            userSettings: loginData.userSettings
-         }, {}).then(function (settings) {
-            if (callback) callback(settings);
-         }, function (err) {
-            console.log(err);
-         });
+            name: config.app.name,
+            settings: userSettings
+         }, {})
+            .then(function (settings) {
+               if (callback) callback(settings);
+            }, function (err) {
+               console.log(err);
+            });
       }
 
       /* ------------- helper functions --------------- */

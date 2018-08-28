@@ -17,11 +17,10 @@ app.directive('rfModalStartApps', ['loginFactory', function (loginFactory) {
       },
       templateUrl: 'global/common/modal/startApps/template.html',
       link: function ($scope, element) {
-         $scope.modal.size = 'big';
+         $scope.modal.size = 'large';
 
-         var globalSettings = loginFactory.getGlobalSettings();
-         if (globalSettings) {
-            var urls = globalSettings.apps.login.urls;
+         var urls = loginFactory.getAppUrls('rf-app-login');
+         if (urls.main && urls.startApps) {
             var url = urls.main + urls.startApps;
             document.getElementById('start-app-iframe').src = url;
          } else {

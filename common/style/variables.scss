@@ -1,31 +1,21 @@
 //global colors //////////////////////////////////
 
-$gray_1: #b3b3b3;
-$gray_2: #ddd;
-$gray_3: #636363;
+// main theme color
+$main_color: #f47721;
+$main_color_light: #ffa200;
+$main_color_dark: #de7704;
+$main_color_contrast_light: #0b88de;
+$main_color_contrast_dark: #1d398c;
 
-$green_1: #61a161;
-$green_1_1: #dfd;
-$green_2: #0f0;
+// main elements background
+$nav_background: #282630;
+$sidebar_background: #282630;
+$header_background: #282630;
 
-$red: #ff0202;
-$red_1: #a00;
-$red_1_1: #fdd;
-$red_2: #f00;
-$darkred: #a53f3f;
-
-$blue_1: #00a;
-$blue_1_1: #ddf;
-$blue_2: #00f;
-$lightblue: #68baf2;
-$blue: #0b88de;
-
-$yellow: #f9ff00;
-$orange_1: #f47721;
-$orange_1_1: #f4c09c;
-$orange: #f47721;
-$darkyellow: #d08d31;
-
+// fields
+$invalid: red;
+$valid: #d7fa96;
+$untouched: #fff;
 
 // black - grey - white
 $midwhite: #fcfcfc;     // background color
@@ -34,23 +24,18 @@ $lightgrey: lightgray;  // border color
 $midgrey: grey;         // background color
 $grey:  #545454;        // background color
 $darkgrey: #282630;     // background color
-$activeGrey: #717171;   // background color
 
-// orange/yellow
-$orange: #f47721;
-$darkyellow: #d08d31;
-$yellow: #FFBD00;
-$darkred: #a53f3f;
-
-// blue
-$lightblue: #68baf2;
+// basic colors, that should not be modified
+$green: #20e620;
+$darkgreen: green;
 $blue: #0b88de;
-$darkgreenblue: #0e5c65;
+$darkblue: #1d398c;
+$red: #ff0202;
+$darkred: #a53f3f;
+$yellow: #f9ff00;
+$darkyellow: #d08d31;
 
-// fields
-$invalid: red;
-$valid: #d7fa96;
-$untouched: #fff;
+
 
 //global resolution variables //////////////////////////////////
 

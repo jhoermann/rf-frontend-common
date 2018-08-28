@@ -1,7 +1,7 @@
 /**
  * @desc login menu including settings, administration, about, support
  *
- * @version 0.0.5
+ * @version 0.0.6
  *
  * @example
  * <rf-login-menu></rf-login-menu>
@@ -20,9 +20,9 @@ app.directive('rfLoginMenu', ['$rootScope', 'loginFactory', '$state', 'config',
                $scope.userName = loginFactory.getUserName();
                $scope.isAdmin = loginFactory.isLoginAdmin();
 
-               if (loginData.globalSettings) {
-                  var urls = loginData.globalSettings.apps.login.urls;
-                  $scope.profileUrl = urls.main + urls.profile + '/' + loginFactory.getUserId();
+               var urls = loginFactory.getAppUrls('rf-app-login');
+               if (urls.main && urls.profile) {
+                  $scope.profileUrl = urls.main + urls.profile;
                   $scope.adminAreaUrl = urls.main + urls.adminArea;
                }
 

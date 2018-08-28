@@ -1,0 +1,26 @@
+rf-policy-link {
+   .privacy-info {
+      position: fixed;
+      width: 100%;
+      color: grey;
+      bottom: 35px;
+
+      i {
+         position: absolute;
+         left: 7px;
+         top: 1.5px;
+         font-size: 10px;
+      }
+
+      a {
+         color: grey;
+         position: absolute;
+         left: 20px;
+         top: 0;
+         font-size: 12px;
+         line-height: 14px;
+         text-decoration: none;
+         cursor: pointer;
+      }
+   }
+}

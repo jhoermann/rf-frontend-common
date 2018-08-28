@@ -1,6 +1,6 @@
 /**
  * @module dateFactory
- * @version 0.1.1
+ * @version 0.1.2
  */
 
 app.factory('dateFactory', [function () {
@@ -27,6 +27,7 @@ app.factory('dateFactory', [function () {
       return {
          dd: day,
          mm: month,
+         yy: year.toString().substr(-2),
          yyyy: year
       };
    }
