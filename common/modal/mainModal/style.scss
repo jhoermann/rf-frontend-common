@@ -128,7 +128,7 @@ rf-modal {
 
    }
 
-   .greyLayer {
+   .grey-layer {
       position: fixed;
       z-index: 9100;
       left: 0;
@@ -158,7 +158,7 @@ rf-modal {
          }
       }
 
-      .greyLayer {
+      .grey-layer {
          @include transition(0.15s);
          opacity: 0.8;
       }
