@@ -26,7 +26,7 @@ var rfTokenFactory = {
 
       var query = {data: ''};
       var urlToken = rfTokenFactory.hasUrlToken();
-      query.token = window.localStorage.token || urlToken || (baseConfig && baseConfig.token ? baseConfig.token : '');
+      query.token = urlToken || window.localStorage.token || (baseConfig && baseConfig.token ? baseConfig.token : '');
 
 
       var initInjector = angular.injector(['ng']),
@@ -44,6 +44,16 @@ var rfTokenFactory = {
 
             // store obj for internal use in rfTokenFactory
             rfTokenFactory.config = baseConfig;
+
+            // login app: store the token
+            if (rfTokenFactory.isLoginApp() && rfTokenFactory.config.token) {
+               rfTokenFactory.storeToken(rfTokenFactory.config.token);
+
+            // other apps: delete token if there has one been saved by accident
+            } else {
+               rfTokenFactory.deleteToken();
+            }
+
             // console.log('got everything', rfTokenFactory.config );
 
             if (urlToken || rfTokenFactory.isInternal() || rfTokenFactory.isLoginApp()) {

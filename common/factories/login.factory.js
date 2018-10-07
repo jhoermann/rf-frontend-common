@@ -198,10 +198,12 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
                   sessionId: sessionId || null // optional add a sessionId to refresh to find old sessions with already refreshed tokens
                }, {}).then(function (res) {
                   console.log('[loginFactory] Token refreshed!');
-                  rfTokenFactory.setToken(res.token);
-                  refreshRunning = false;
-                  $rootScope.$broadcast('tokenrefreshed', res.token);
-                  resolve(res.token);
+                  config.token = res.token;
+                  rfTokenFactory.refreshConfig(config, function () {
+                     refreshRunning = false;
+                     $rootScope.$broadcast('tokenrefreshed', res.token);
+                     resolve(res.token);
+                  });
                }, function (err) {
                   refreshRunning = false;
                   $rootScope.$broadcast('tokenrefreshed');
