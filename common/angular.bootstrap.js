@@ -62,8 +62,10 @@ var rfTokenFactory = {
 
 
    getToken: function () {
-      if (!window.localStorage.token ||
-         (typeof window.localStorage.token === 'string' && (window.localStorage.token === 'null' || window.localStorage.token === 'false' || window.localStorage.token === 'undefined')) ||
+      if (
+         (!window.localStorage.token ||
+         (typeof window.localStorage.token === 'string' &&
+         (window.localStorage.token === 'null' || window.localStorage.token === 'false' || window.localStorage.token === 'undefined'))) &&
          (!rfTokenFactory.config || !rfTokenFactory.config.token)
       ) {
          return false;
