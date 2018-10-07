@@ -138,7 +138,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       }
 
       function _getLoggedIn () {
-         return rfTokenFactory.isLoggedIn();
+         return !!rfTokenFactory.getToken();
       }
 
       /**

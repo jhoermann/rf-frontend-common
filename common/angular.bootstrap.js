@@ -9,11 +9,15 @@
  */
 var rfTokenFactory = {
 
-   config: {},
-
-   setConfig: function (data) {
-      this.config = data;
+   login: function () {
+      window.location.href = this.getLoginAppUrl('login', 'redirect', 'app=' + this.config.app.name);
    },
+
+   logout: function () {
+      window.location.href = this.getLoginAppUrl('logout', false);
+   },
+
+   config: {},
 
    refreshConfig: function (baseConfig, callback) {
 
@@ -58,7 +62,14 @@ var rfTokenFactory = {
 
 
    getToken: function () {
-      return window.localStorage.token || (this.config && this.config.token ? this.config.token : '');
+      if (!window.localStorage.token ||
+         (typeof window.localStorage.token === 'string' && (window.localStorage.token === 'null' || window.localStorage.token === 'false' || window.localStorage.token === 'undefined')) ||
+         (!rfTokenFactory.config || !rfTokenFactory.config.token)
+      ) {
+         return false;
+      } else {
+         return window.localStorage.token || (this.config && this.config.token ? this.config.token : '');
+      }
    },
 
    storeToken: function (token) {
@@ -67,28 +78,6 @@ var rfTokenFactory = {
 
    deleteToken: function _deleteToken () {
       window.localStorage.removeItem('token');
-   },
-
-   login: function () {
-      window.location.href = this.getLoginAppUrl('login', 'redirect', 'app=' + this.config.app.name);
-   },
-
-   logout: function () {
-      window.location.href = this.getLoginAppUrl('logout', false);
-   },
-
-   isLoggedIn: function () {
-      var self = this;
-      return self.hasToken();
-   },
-
-   hasToken: function () {
-      if (!window.localStorage.token || (typeof window.localStorage.token === 'string' &&
-          (window.localStorage.token === 'null' || window.localStorage.token === 'false' || window.localStorage.token === 'undefined'))) {
-         return false;
-      } else {
-         return true;
-      }
    },
 
    hasUrlToken: function () {
