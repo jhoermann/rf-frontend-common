@@ -5,7 +5,7 @@
 /** rfTokenFactory
  * @desc used in loginfactory and bootstrap
  * do not use in html: ng-app="app" (this would also bootstrap the app)
- * @version 0.1.0
+ * @version 0.1.1
  */
 var rfTokenFactory = {
 
@@ -40,6 +40,7 @@ var rfTokenFactory = {
 
             // store obj for internal use in rfTokenFactory
             rfTokenFactory.config = baseConfig;
+            // console.log('got everything', rfTokenFactory.config );
 
             if (urlToken || rfTokenFactory.isInternal() || rfTokenFactory.isLoginApp()) {
                if (callback) callback(baseConfig);
@@ -57,10 +58,10 @@ var rfTokenFactory = {
 
 
    getToken: function () {
-      return window.localStorage.token || null;
+      return window.localStorage.token || (this.config && this.config.token ? this.config.token : '');
    },
 
-   setToken: function (token) {
+   storeToken: function (token) {
       window.localStorage.token = token;
    },
 
@@ -91,7 +92,7 @@ var rfTokenFactory = {
    },
 
    hasUrlToken: function () {
-      return !!this.getUrlParameter('token');
+      return this.getUrlParameter('token');
    },
 
    isInternal: function () {
@@ -126,7 +127,7 @@ var rfTokenFactory = {
    getUrlParameter: function (key) {
       var href = window.location.href,
          uri = '',
-         value = null,
+         value = false,
          params;
 
          // Cut ? from uri
@@ -152,7 +153,7 @@ var rfTokenFactory = {
 /**
  * @desc bootstrap angular application
  * do not use in html: ng-app="app" (this would also bootstrap the app)
- * @version 0.1.0
+ * @version 0.1.1
  */
 function startAngularApp () {
    var origin = window.location.origin;
@@ -167,7 +168,6 @@ function startAngularApp () {
    }
 
    var baseConfig = {
-      'cached': false,
       'serverURL': servURL,
       'wsUrl': servURL.replace('http', 'ws')
    };

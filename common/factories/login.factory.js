@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.2.0
+ * @version 0.2.1
  */
 
 /* globals rfTokenFactory */
@@ -159,7 +159,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       /* -------------  login data  -------------- */
 
       function _getToken () {
-         return config.token;
+         return rfTokenFactory.getToken();
       }
 
       function _getUserData () {
@@ -226,7 +226,14 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
       }
 
       function _clearLoginData () {
-         config.session = {};
+
+         // remove all keys from config, except serverURLs
+         for (var key in config) {
+            if (key !== 'wsUrl' && key !== 'serverURL') {
+               delete config[key];
+            }
+         }
+
          $rootScope.$broadcast('loggedOut');
       }
 
