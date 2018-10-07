@@ -7,7 +7,7 @@
  * @event loggedIn
  * @event loggedOut
  *
- * @version 0.2.1
+ * @version 0.2.2
  */
 
 /* globals rfTokenFactory */
@@ -283,17 +283,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
        * Redirect without token parameter in the url
       */
       function _removeTokenFromUrl () {
-         var href = $window.location.href;
-         // Regex is: ([\?\&])token=[^\?\&]*([\?\&]|$) but eslint needs unicodes because of bad escaping error
-         var re = new RegExp('([\u003F\u0026])token=[^\u003F\u0026]*([\u003F\u0026]|$)');
-
-         // Replace the token in the url but keep the next or previous parameters
-         href = href.replace(re, function (match, p1, p2) {
-            if (p2) return p1;
-            return '';
-         });
-
-         $window.location.href = href;
+         rfTokenFactory.removeTokenFromUrl();
       }
 
       /* -------------  settings  -------------- */
