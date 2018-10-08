@@ -1,31 +1,20 @@
-/** rf address
+/** rf policy link
  * @desc
- *  display fields of an address
- *  option: show mail/phone,
- *  option: edit function
+ *  display the rapidfacture policy link
  *
- *
- * @version 0.0.4
+ * @version 0.0.5
  *
  * @example
- *     <rf-address ng-model="address"><rf-address>
- *
- *
- *  show also email and phone
- *     <rf-address ng-model="address" class="contact"><rf-address>
- *
+ *     <rf-policy-link></rf-policy-link>
  *
  */
 
 app.directive('rfPolicyLink', ['http', 'langFactory', 'config', function (http, langFactory, config) { // save json drawing
    return {
       restrict: 'E',
-      scope: {
-         ngModel: '=' // bind a variable out of the html via attribute
-      },
+      scope: '=',
       templateUrl: 'global/common/policyLink/template.html',
       link: function ($scope, elem, attr, ctrl) {
-         $scope.lang = langFactory.getCurrentDictionary();
          $scope.termsAndPolicyLink = config.termsAndPolicyLink;
       }
    };
