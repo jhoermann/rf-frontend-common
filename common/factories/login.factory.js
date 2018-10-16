@@ -72,7 +72,7 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          },
 
          // rights
-         hasRight: _hasRight, // hasApp('accounting', "write")
+         hasRight: _hasRight, // hasRight('accounting', "write") or hasRight('accounting', "write", "own")
          hasAppRight: _hasAppRight, // hasAppRight('rf-app-cad', 'drawings', "write")
 
          hasUserGroup: function (userGroup) {
@@ -243,17 +243,28 @@ app.factory('loginFactory', ['$rootScope', 'config', '$http', '$state', '$window
          return (config.user && config.user[attribute]) ? config.user[attribute] : '';
       }
 
-      function _hasAppRight (app, section, access) {
+      function _hasAppRight (app, section, access, range) {
          if (config.rights && config.rights[app] &&
-          config.rights[app][section] && config.rights[app][section][access]) {
-            return config.rights[app][section][access];
+          config.rights[app][section] &&
+          config.rights[app][section][access]) {
+
+            // range (all, own) specified => check if included
+            if (range) {
+               return (config.rights[app][section][access].indexOf(range) !== -1);
+
+            // no range => return all
+            } else {
+               return config.rights[app][section][access];
+            }
          } else {
             return false;
          }
       }
 
-      function _hasRight (section, access) {
-         return _hasAppRight(config.app.name, section, access);
+      function _hasRight (section, access, range) {
+         // example: hasRight('accounting', "write")
+         // example: hasRight('accounting', "write", "all")
+         return _hasAppRight(config.app.name, section, access, range);
       }
 
       function _hasApp (app) {
